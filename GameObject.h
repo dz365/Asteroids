@@ -16,7 +16,7 @@ public:
 	float getVelocity();
 	void setVelocity(float newVelocity);
 
-	void update();
-	void render();
+	virtual void update() = 0;
+	virtual void render(const HDC& hdc) = 0;
 };
 

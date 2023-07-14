@@ -3,6 +3,7 @@
 
 #include "framework.h"
 #include "Asteroids.h"
+#include "Player.h"
 
 #define MAX_LOADSTRING 100
 
@@ -147,21 +148,11 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
             PAINTSTRUCT ps;
             HDC hdc = BeginPaint(hWnd, &ps);
             // TODO: Add any drawing code that uses hdc here...
+            Player player;
+            player.render(hdc);
 
-            // Define the polygon vertices
             int x = 50;
             int y = 50;
-            POINT player[5] = { 
-                { x , y },
-                { x - 10, y + 30 }, 
-                { x - 3, y + 20 }, 
-                { x + 3, y + 20 }, 
-                { x + 10, y + 30 } 
-            };
-
-            // Draw the polygon
-            Polygon(hdc, player, 5);
-
             // Set the start and end points of the line
             POINT leftThrusterStart = { x - 5, y + 30 };
             POINT leftThrusterEnd = { x, y + 40 };
