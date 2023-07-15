@@ -112,6 +112,7 @@ BOOL InitInstance(HINSTANCE hInstance, int nCmdShow)
    return TRUE;
 }
 
+Player player;
 //
 //  FUNCTION: WndProc(HWND, UINT, WPARAM, LPARAM)
 //
@@ -143,43 +144,36 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
             }
         }
         break;
+    case WM_KEYDOWN:
+        switch (wParam) {
+        case VK_SPACE:
+            player.startEngine();
+            // Get the bounding rectangle of the player
+            RECT playerRect = player.getBoundingRect();
+
+            // Invalidate and update only the region occupied by the player
+            InvalidateRect(hWnd, &playerRect, TRUE);
+            break;
+        }
+        break;
+    case WM_KEYUP:
+        switch (wParam) {
+        case VK_SPACE:
+            player.stopEngine();
+            // Get the bounding rectangle of the player
+            RECT playerRect = player.getBoundingRect();
+
+            // Invalidate and update only the region occupied by the player
+            InvalidateRect(hWnd, &playerRect, TRUE);
+            break;
+        }
+        break;
     case WM_PAINT:
         {
             PAINTSTRUCT ps;
             HDC hdc = BeginPaint(hWnd, &ps);
             // TODO: Add any drawing code that uses hdc here...
-            Player player;
             player.render(hdc);
-
-            int x = 50;
-            int y = 50;
-            // Set the start and end points of the line
-            POINT leftThrusterStart = { x - 5, y + 30 };
-            POINT leftThrusterEnd = { x, y + 40 };
-
-            // Set the line color to red
-            HPEN hPen = CreatePen(PS_SOLID, 1, RGB(255, 0, 0));
-            HPEN hOldPen = (HPEN)SelectObject(hdc, hPen);
-
-            // Move to the start point
-            MoveToEx(hdc, leftThrusterStart.x, leftThrusterStart.y, nullptr);
-
-            // Draw a line to the end point
-            LineTo(hdc, leftThrusterEnd.x, leftThrusterEnd.y);
-
-            // Set the start and end points of the line
-            POINT rightThrusterStart = { x + 5, y + 30 };
-            POINT rightThrusterEnd = { x, y + 40 };
-
-            // Move to the start point
-            MoveToEx(hdc, rightThrusterStart.x, rightThrusterStart.y, nullptr);
-
-            // Draw a line to the end point
-            LineTo(hdc, rightThrusterEnd.x, rightThrusterEnd.y);
-
-            // Restore the previous pen and clean up resources
-            SelectObject(hdc, hOldPen);
-            DeleteObject(hPen);
 
             EndPaint(hWnd, &ps);
         }

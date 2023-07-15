@@ -3,7 +3,7 @@
 
 class GameObject
 {
-private:
+protected:
 	POINT position;
 	float velocity;
 
@@ -16,6 +16,7 @@ public:
 	float getVelocity();
 	void setVelocity(float newVelocity);
 
+	virtual RECT getBoundingRect() = 0;
 	virtual void update() = 0;
 	virtual void render(const HDC& hdc) = 0;
 };
