@@ -1,6 +1,7 @@
 #include "Player.h"
+#include <cmath>
 
-Player::Player() : GameObject({ 50, 50 }, 0) 
+Player::Player() : GameObject({ 150, 150 }, 0, 0) 
 {
     engineOn = false;
 }
@@ -14,7 +15,7 @@ void Player::stopEngine() {
 }
 
 RECT Player::getBoundingRect() {
-    RECT rect;
+    RECT rect{};
     rect.left = position.x - 10;
     rect.top = position.y;
     rect.right = position.x + 10;
@@ -35,7 +36,21 @@ void Player::render(const HDC& hdc)
 		{ position.x + 10, position.y + 30 }
 	};
 
-	// Draw the polygon
+    // Spaceship center
+    POINT center = { position.x, position.y + 15 };
+    for (int i = 0; i < 5; i++) {
+        // Translate the vertex relative to the center
+        int translatedX = vertices[i].x - center.x;
+        int translatedY = vertices[i].y - center.y;
+
+        // Apply the rotation transformation
+        vertices[i].x = static_cast<int>(translatedX * cos(rotation) - translatedY * sin(rotation));
+        vertices[i].y = static_cast<int>(translatedX * sin(rotation) + translatedY * cos(rotation));
+
+        // Translate the vertex back to its original position
+        vertices[i].x += center.x;
+        vertices[i].y += center.y;
+    }
 	Polygon(hdc, vertices, 5);
 
 	if (engineOn) {

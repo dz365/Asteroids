@@ -1,7 +1,7 @@
 #include "GameObject.h"
 
-GameObject::GameObject(POINT position, float velocity) 
-	: position(position), velocity(velocity) {}
+GameObject::GameObject(POINT position, float velocity, float rotation) 
+	: position(position), velocity(velocity), rotation(rotation) {}
 
 POINT GameObject::getPosition() const {
 	return position;
@@ -17,4 +17,12 @@ float GameObject::getVelocity() {
 
 void GameObject::setVelocity(float newVelocity) {
 	velocity = newVelocity;
+}
+
+float GameObject::getRotation() {
+	return rotation;
+}
+
+void GameObject::setRotation(float newRotation) {
+	rotation = newRotation;
 }

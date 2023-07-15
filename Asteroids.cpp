@@ -147,6 +147,7 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
     case WM_KEYDOWN:
         switch (wParam) {
         case VK_SPACE:
+        {
             player.startEngine();
             // Get the bounding rectangle of the player
             RECT playerRect = player.getBoundingRect();
@@ -154,6 +155,25 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
             // Invalidate and update only the region occupied by the player
             InvalidateRect(hWnd, &playerRect, TRUE);
             break;
+        }
+        case 'A':
+        {
+            player.setRotation(player.getRotation() - 0.05f);
+            // Get the bounding rectangle of the player
+            RECT playerRect = player.getBoundingRect();
+            // Invalidate and update only the region occupied by the player
+            InvalidateRect(hWnd, &playerRect, TRUE);
+            break;
+        }
+        case 'D':
+        {
+            player.setRotation(player.getRotation() + 0.05f);
+            // Get the bounding rectangle of the player
+            RECT playerRect = player.getBoundingRect();
+            // Invalidate and update only the region occupied by the player
+            InvalidateRect(hWnd, &playerRect, TRUE);
+            break;
+        }
         }
         break;
     case WM_KEYUP:
