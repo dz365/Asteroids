@@ -4,6 +4,8 @@
 #include "framework.h"
 #include "Asteroids.h"
 #include "Player.h"
+#include <unordered_set>
+#include <string>
 
 #define MAX_LOADSTRING 100
 
@@ -17,6 +19,11 @@ ATOM                MyRegisterClass(HINSTANCE hInstance);
 BOOL                InitInstance(HINSTANCE, int);
 LRESULT CALLBACK    WndProc(HWND, UINT, WPARAM, LPARAM);
 INT_PTR CALLBACK    About(HWND, UINT, WPARAM, LPARAM);
+
+
+Player player;
+std::unordered_set<std::string> pressedKeys;
+constexpr UINT_PTR TIMER_ID = 1;
 
 int APIENTRY wWinMain(_In_ HINSTANCE hInstance,
                      _In_opt_ HINSTANCE hPrevInstance,
@@ -109,10 +116,33 @@ BOOL InitInstance(HINSTANCE hInstance, int nCmdShow)
    ShowWindow(hWnd, nCmdShow);
    UpdateWindow(hWnd);
 
+   SetTimer(hWnd, TIMER_ID, 50, nullptr);
+
    return TRUE;
 }
 
-Player player;
+void pressedKeysHandler(HWND hWnd)
+{
+    if (pressedKeys.find("W") == pressedKeys.end())
+    {
+        player.stopEngine();
+    } 
+    else
+    {
+        player.startEngine();
+    }
+
+    if (pressedKeys.find("A") != pressedKeys.end())
+        player.setRotation(player.getRotation() - 0.05f);
+
+    if (pressedKeys.find("D") != pressedKeys.end())
+        player.setRotation(player.getRotation() + 0.05f);
+
+    // Redraw area occupied by the player
+    RECT playerRect = player.getBoundingRect();
+    InvalidateRect(hWnd, &playerRect, TRUE);
+}
+
 //
 //  FUNCTION: WndProc(HWND, UINT, WPARAM, LPARAM)
 //
@@ -144,48 +174,48 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
             }
         }
         break;
+    case WM_TIMER:
+        if (wParam == TIMER_ID)
+        {
+            pressedKeysHandler(hWnd);
+        }
+        break;
     case WM_KEYDOWN:
         switch (wParam) {
-        case VK_SPACE:
+        case 'W':
         {
-            player.startEngine();
-            // Get the bounding rectangle of the player
-            RECT playerRect = player.getBoundingRect();
-
-            // Invalidate and update only the region occupied by the player
-            InvalidateRect(hWnd, &playerRect, TRUE);
+            pressedKeys.insert("W");
             break;
         }
         case 'A':
         {
-            player.setRotation(player.getRotation() - 0.05f);
-            // Get the bounding rectangle of the player
-            RECT playerRect = player.getBoundingRect();
-            // Invalidate and update only the region occupied by the player
-            InvalidateRect(hWnd, &playerRect, TRUE);
+            pressedKeys.insert("A");
             break;
         }
         case 'D':
         {
-            player.setRotation(player.getRotation() + 0.05f);
-            // Get the bounding rectangle of the player
-            RECT playerRect = player.getBoundingRect();
-            // Invalidate and update only the region occupied by the player
-            InvalidateRect(hWnd, &playerRect, TRUE);
+            pressedKeys.insert("D");
             break;
         }
         }
         break;
     case WM_KEYUP:
         switch (wParam) {
-        case VK_SPACE:
-            player.stopEngine();
-            // Get the bounding rectangle of the player
-            RECT playerRect = player.getBoundingRect();
-
-            // Invalidate and update only the region occupied by the player
-            InvalidateRect(hWnd, &playerRect, TRUE);
+        case 'W':
+        {
+            pressedKeys.erase("W");
             break;
+        }
+        case 'A':
+        {
+            pressedKeys.erase("A");
+            break;
+        }
+        case 'D':
+        {
+            pressedKeys.erase("D");
+            break;
+        }
         }
         break;
     case WM_PAINT:
