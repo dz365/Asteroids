@@ -121,7 +121,7 @@ BOOL InitInstance(HINSTANCE hInstance, int nCmdShow)
    return TRUE;
 }
 
-void pressedKeysHandler(HWND hWnd)
+void pressedKeysHandler()
 {
     if (pressedKeys.find("W") == pressedKeys.end())
     {
@@ -133,14 +133,10 @@ void pressedKeysHandler(HWND hWnd)
     }
 
     if (pressedKeys.find("A") != pressedKeys.end())
-        player.setRotation(player.getRotation() - 0.05f);
+        player.setRotation(player.getRotation() - 0.25f);
 
     if (pressedKeys.find("D") != pressedKeys.end())
-        player.setRotation(player.getRotation() + 0.05f);
-
-    // Redraw area occupied by the player
-    RECT playerRect = player.getBoundingRect();
-    InvalidateRect(hWnd, &playerRect, TRUE);
+        player.setRotation(player.getRotation() + 0.25f);
 }
 
 //
@@ -177,7 +173,11 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
     case WM_TIMER:
         if (wParam == TIMER_ID)
         {
-            pressedKeysHandler(hWnd);
+            pressedKeysHandler();
+            player.update(hWnd);
+            // Redraw area occupied by the player
+            RECT playerRect = player.getBoundingRect();
+            InvalidateRect(hWnd, nullptr, TRUE);
         }
         break;
     case WM_KEYDOWN:

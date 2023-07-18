@@ -5,7 +5,7 @@ class GameObject
 {
 protected:
 	POINT position;
-	float velocity;
+	float velocity; // x km/s
 	float rotation; // in radians.
 
 public:
@@ -21,7 +21,7 @@ public:
 	void setRotation(float newRotation);
 
 	virtual RECT getBoundingRect() = 0;
-	virtual void update() = 0;
+	virtual void update(const HWND& hWnd) = 0;
 	virtual void render(const HDC& hdc) = 0;
 };
 

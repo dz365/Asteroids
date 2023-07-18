@@ -15,7 +15,7 @@ public:
 	void startEngine();
 	void stopEngine();
 	RECT getBoundingRect();
-	void update();
+	void update(const HWND& hWnd);
 	void render(const HDC& hdc);
 };
 
