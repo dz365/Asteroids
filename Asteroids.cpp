@@ -8,6 +8,7 @@
 #include <string>
 
 #define MAX_LOADSTRING 100
+constexpr auto PI = 3.14159265358979323846;
 
 // Global Variables:
 HINSTANCE hInst;                                // current instance
@@ -133,10 +134,10 @@ void pressedKeysHandler()
     }
 
     if (pressedKeys.find("A") != pressedKeys.end())
-        player.setRotation(player.getRotation() - 0.25f);
+        player.setRotation(player.getRotation() - PI / 12);
 
     if (pressedKeys.find("D") != pressedKeys.end())
-        player.setRotation(player.getRotation() + 0.25f);
+        player.setRotation(player.getRotation() + PI / 12);
 }
 
 //

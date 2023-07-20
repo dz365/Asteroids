@@ -28,15 +28,16 @@ void Player::update(const HWND& hWnd)
     // Determine new velocity
     if (engineOn)
         velocity += 2.0f;
-    velocity -= 0.75f;
+    else
+        velocity -= 0.5f;
     if (velocity < 0)
         velocity = 0;
     if (velocity > 15)
         velocity = 15.0f;
 
     // Update position
-    position.x += float(sin(rotation) * velocity);
-    position.y -= float(cos(rotation) * velocity);
+    position.x += static_cast<LONG>(sin(rotation) * velocity);
+    position.y -= static_cast<LONG>(cos(rotation) * velocity);
 
     RECT rect;
     GetClientRect(hWnd, &rect);
