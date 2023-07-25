@@ -7,8 +7,6 @@ class Player : public GameObject
 private:
 	bool engineOn;
 
-	void renderEngineFlames(const HDC& hdc);
-
 public:
 	Player();
 

@@ -127,6 +127,7 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClInclude Include="Asteroid.h" />
     <ClInclude Include="Asteroids.h" />
     <ClInclude Include="framework.h" />
     <ClInclude Include="GameObject.h" />
@@ -135,6 +136,7 @@
     <ClInclude Include="targetver.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="Asteroid.cpp" />
     <ClCompile Include="Asteroids.cpp" />
     <ClCompile Include="GameObject.cpp" />
     <ClCompile Include="Player.cpp" />
@@ -143,6 +145,7 @@
     <ResourceCompile Include="Asteroids.rc" />
   </ItemGroup>
   <ItemGroup>
+    <Image Include="..\..\..\Downloads\spaceship.png" />
     <Image Include="Asteroids.ico" />
     <Image Include="small.ico" />
   </ItemGroup>

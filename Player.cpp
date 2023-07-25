@@ -32,8 +32,8 @@ void Player::update(const HWND& hWnd)
         velocity -= 0.5f;
     if (velocity < 0)
         velocity = 0;
-    if (velocity > 15)
-        velocity = 15.0f;
+    if (velocity > 12)
+        velocity = 12.0f;
 
     // Update position
     position.x += static_cast<LONG>(sin(rotation) * velocity);
@@ -54,66 +54,21 @@ void Player::update(const HWND& hWnd)
         position.y = 0;
 }
 
-void rotatePoints(POINT points[], int pointsLength, POINT center, float rotation) {
-    for (int i = 0; i < pointsLength; i++) {
-        // Translate the vertex relative to the center
-        int translatedX = points[i].x - center.x;
-        int translatedY =points[i].y - center.y;
-
-        // Apply the rotation transformation
-        points[i].x = static_cast<int>(translatedX * cos(rotation) - translatedY * sin(rotation));
-        points[i].y = static_cast<int>(translatedX * sin(rotation) + translatedY * cos(rotation));
-
-        // Translate the vertex back to its original position
-        points[i].x += center.x;
-        points[i].y += center.y;
-    }
-}
-
 void Player::render(const HDC& hdc) 
 {
 	// Draw spaceship
-	POINT vertices[5] = {
-		{ position.x , position.y },
-		{ position.x - 10, position.y + 30 },
-		{ position.x - 3, position.y + 20 },
-		{ position.x + 3, position.y + 20 },
-		{ position.x + 10, position.y + 30 }
-	};
+    Gdiplus::Image spaceship(L"spaceship.png");
 
-    // Spaceship center
-    POINT center = { position.x, position.y + 15 };
-    rotatePoints(vertices, 5, center, rotation);
-	Polygon(hdc, vertices, 5);
+    Gdiplus::Graphics graphics(hdc);
+
+    graphics.TranslateTransform(position.x + 12, position.y + 12);
+    graphics.RotateTransform(rotation * 180 / 3.14159265358979323846);
+    graphics.TranslateTransform(-position.x - 12, -position.y - 12);
+
+    graphics.DrawImage(&spaceship,static_cast<int>(position.x), static_cast<int>(position.y));
 
 	if (engineOn) {
-        renderEngineFlames(hdc);
+        Gdiplus::Image thrust(L"thrust.png");
+        graphics.DrawImage(&thrust, static_cast<int>(position.x + 8), static_cast<int>(position.y + 27));
 	}
-}
-
-void Player::renderEngineFlames(const HDC& hdc) {
-    POINT points[] = { 
-        { position.x - 5, position.y + 30 }, 
-        { position.x, position.y + 40 }, 
-        { position.x + 5, position.y + 30 }, 
-        { position.x, position.y + 40 } 
-    };
-    POINT center = { position.x, position.y + 15 };
-    rotatePoints(points, 4, center, rotation);
-
-    // Set the line color to red
-    HPEN hPen = CreatePen(PS_SOLID, 1, RGB(255, 0, 0));
-    HPEN hOldPen = (HPEN)SelectObject(hdc, hPen);
-
-    // Draw left flame
-    MoveToEx(hdc, points[0].x, points[0].y, nullptr);
-    LineTo(hdc, points[1].x, points[1].y);
-
-    // Draw right flame
-    MoveToEx(hdc, points[2].x, points[2].y, nullptr);
-    LineTo(hdc, points[3].x, points[3].y);
-
-    // Clean up resources
-    SelectObject(hdc, hOldPen);
-    DeleteObject(hPen);
 }
