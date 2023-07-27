@@ -4,10 +4,13 @@
 #include "framework.h"
 #include "Asteroids.h"
 #include "Player.h"
+#include "Asteroid.h"
+#include "GameObject.h"
 #include <unordered_set>
 #include <string>
 #include <objidl.h>
 #include <gdiplus.h>
+#include <list>
 #pragma comment (lib,"Gdiplus.lib")
 
 #define MAX_LOADSTRING 100
@@ -24,8 +27,8 @@ BOOL                InitInstance(HINSTANCE, int);
 LRESULT CALLBACK    WndProc(HWND, UINT, WPARAM, LPARAM);
 INT_PTR CALLBACK    About(HWND, UINT, WPARAM, LPARAM);
 
-
 Player player;
+std::list<GameObject*> gameObjects;
 std::unordered_set<std::string> pressedKeys;
 constexpr UINT_PTR TIMER_ID = 1;
 
@@ -38,7 +41,9 @@ int APIENTRY wWinMain(_In_ HINSTANCE hInstance,
     UNREFERENCED_PARAMETER(lpCmdLine);
 
     // TODO: Place code here.
-    
+    gameObjects.push_back(&player);
+    gameObjects.push_back(new Asteroid({ 100, 100 }, 5, PI/4));
+
     // Initialize GDI+
     Gdiplus::GdiplusStartupInput gdiplusStartupInput;
     ULONG_PTR gdiplusToken;
@@ -162,8 +167,27 @@ void pressedKeysHandler()
 //
 LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 {
+    static HBITMAP hBitmapBuffer = NULL;
+    static HDC hdcBuffer = NULL;
+    static int clientWidth, clientHeight;
+
     switch (message)
     {
+    case WM_CREATE:
+        // Create the memory DC for double buffering
+        hdcBuffer = CreateCompatibleDC(NULL);
+        break;
+
+    case WM_SIZE:
+        // Recreate the buffer when the window size changes
+        if (hdcBuffer) {
+            if (hBitmapBuffer) DeleteObject(hBitmapBuffer);
+            clientWidth = LOWORD(lParam);
+            clientHeight = HIWORD(lParam);
+            hBitmapBuffer = CreateCompatibleBitmap(GetDC(hWnd), clientWidth, clientHeight);
+            SelectObject(hdcBuffer, hBitmapBuffer);
+        }
+        break;
     case WM_COMMAND:
         {
             int wmId = LOWORD(wParam);
@@ -185,10 +209,10 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
         if (wParam == TIMER_ID)
         {
             pressedKeysHandler();
-            player.update(hWnd);
-            // Redraw area occupied by the player
-            RECT playerRect = player.getBoundingRect();
-            InvalidateRect(hWnd, nullptr, TRUE);
+            for (GameObject* obj : gameObjects) {
+                obj->update(hWnd);     
+            }
+            InvalidateRect(hWnd, nullptr, FALSE);
         }
         break;
     case WM_KEYDOWN:
@@ -233,13 +257,31 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
         {
             PAINTSTRUCT ps;
             HDC hdc = BeginPaint(hWnd, &ps);
-            // TODO: Add any drawing code that uses hdc here...
-            player.render(hdc);
+            Gdiplus::Graphics graphics(hdcBuffer);
+            graphics.Clear(Gdiplus::Color::Black);
+            // Save the current state of the Graphics object
+            Gdiplus::GraphicsState graphicsState = graphics.Save();
+            for (GameObject* obj : gameObjects) {    
+                obj->render(graphics);
+                // Restore the original state of the Graphics object
+                graphics.Restore(graphicsState);
+            }
+            // Copy the entire buffered content to the window DC
+            BitBlt(hdc, 0, 0, clientWidth, clientHeight, hdcBuffer, 0, 0, SRCCOPY);
 
             EndPaint(hWnd, &ps);
         }
         break;
+
     case WM_DESTROY:
+        if (hdcBuffer) {
+            DeleteDC(hdcBuffer);
+            hdcBuffer = NULL;
+        }
+        if (hBitmapBuffer) {
+            DeleteObject(hBitmapBuffer);
+            hBitmapBuffer = NULL;
+        }
         PostQuitMessage(0);
         break;
     default:

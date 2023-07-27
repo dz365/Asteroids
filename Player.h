@@ -14,6 +14,6 @@ public:
 	void stopEngine();
 	RECT getBoundingRect();
 	void update(const HWND& hWnd);
-	void render(const HDC& hdc);
+	void render(Gdiplus::Graphics& graphics);
 };
 

@@ -1,5 +1,6 @@
 #pragma once
 #include <windows.h>
+#include <cmath>
 #include <objidl.h>
 #include <gdiplus.h>
 #pragma comment (lib,"Gdiplus.lib")
@@ -25,6 +26,6 @@ public:
 
 	virtual RECT getBoundingRect() = 0;
 	virtual void update(const HWND& hWnd) = 0;
-	virtual void render(const HDC& hdc) = 0;
+	virtual void render(Gdiplus::Graphics& graphics) = 0;
 };
 

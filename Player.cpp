@@ -1,5 +1,4 @@
 #include "Player.h"
-#include <cmath>
 
 Player::Player() : GameObject({ 150, 150 }, 0, 0) 
 {
@@ -16,10 +15,10 @@ void Player::stopEngine() {
 
 RECT Player::getBoundingRect() {
     RECT rect{};
-    rect.left = position.x - 10;
-    rect.top = position.y;
-    rect.right = position.x + 10;
-    rect.bottom = position.y + 40;
+    rect.left = position.x - 48;
+    rect.top = position.y - 48;
+    rect.right = position.x + 48;
+    rect.bottom = position.y + 48;
     return rect;
 }
 
@@ -54,12 +53,9 @@ void Player::update(const HWND& hWnd)
         position.y = 0;
 }
 
-void Player::render(const HDC& hdc) 
+void Player::render(Gdiplus::Graphics& graphics)
 {
-	// Draw spaceship
-    Gdiplus::Image spaceship(L"spaceship.png");
-
-    Gdiplus::Graphics graphics(hdc);
+    Gdiplus::Image spaceship(L"spaceship.png"); // 24x24 px
 
     graphics.TranslateTransform(position.x + 12, position.y + 12);
     graphics.RotateTransform(rotation * 180 / 3.14159265358979323846);
@@ -72,3 +68,4 @@ void Player::render(const HDC& hdc)
         graphics.DrawImage(&thrust, static_cast<int>(position.x + 8), static_cast<int>(position.y + 27));
 	}
 }
+
