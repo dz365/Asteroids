@@ -8,7 +8,7 @@
 class GameObject
 {
 protected:
-	POINT position;
+	POINT position; // center
 	float velocity; // x km/s
 	float rotation; // in radians.
 
@@ -25,7 +25,7 @@ public:
 	void setRotation(float newRotation);
 
 	virtual RECT getBoundingRect() = 0;
-	virtual void update(const HWND& hWnd) = 0;
+	virtual void update(const HWND& hWnd);
 	virtual void render(Gdiplus::Graphics& graphics) = 0;
 };
 

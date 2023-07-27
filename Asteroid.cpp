@@ -12,28 +12,11 @@ RECT Asteroid::getBoundingRect() {
     return rect;
 }
 
-void Asteroid::update(const HWND& hWnd) 
-{
-    // Update position
-    position.x += static_cast<LONG>(sin(rotation) * velocity);
-    position.y -= static_cast<LONG>(cos(rotation) * velocity);
-
-    RECT rect;
-    GetClientRect(hWnd, &rect);
-    int windowWidth = rect.right - rect.left;
-    int windowHeight = rect.bottom - rect.top;
-
-    if (position.x < 0)
-        position.x = windowWidth;
-    if (position.x > windowWidth)
-        position.x = 0;
-    if (position.y < 0)
-        position.y = windowHeight;
-    if (position.y > windowHeight)
-        position.y = 0;
-};
 void Asteroid::render(Gdiplus::Graphics& graphics)
 {
 	Gdiplus::Image asteroid(L"asteroid.png"); // 58x61px
-	graphics.DrawImage(&asteroid, static_cast<int>(position.x), static_cast<int>(position.y));
+	graphics.DrawImage(
+        &asteroid, 
+        static_cast<int>(position.x - 26), 
+        static_cast<int>(position.y - 30));
 };

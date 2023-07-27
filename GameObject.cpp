@@ -26,3 +26,24 @@ float GameObject::getRotation() {
 void GameObject::setRotation(float newRotation) {
 	rotation = newRotation;
 }
+
+void GameObject::update(const HWND& hWnd)
+{
+	// Update position
+	position.x += static_cast<LONG>(sin(rotation) * velocity);
+	position.y -= static_cast<LONG>(cos(rotation) * velocity);
+
+	RECT rect;
+	GetClientRect(hWnd, &rect);
+	int windowWidth = rect.right - rect.left;
+	int windowHeight = rect.bottom - rect.top;
+
+	if (position.x < 0)
+		position.x = windowWidth;
+	if (position.x > windowWidth)
+		position.x = 0;
+	if (position.y < 0)
+		position.y = windowHeight;
+	if (position.y > windowHeight)
+		position.y = 0;
+}

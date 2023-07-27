@@ -5,12 +5,14 @@
 #include "Asteroids.h"
 #include "Player.h"
 #include "Asteroid.h"
+#include "Bullet.h"
 #include "GameObject.h"
 #include <unordered_set>
 #include <string>
 #include <objidl.h>
 #include <gdiplus.h>
 #include <list>
+#include <cmath>
 #pragma comment (lib,"Gdiplus.lib")
 
 #define MAX_LOADSTRING 100
@@ -153,6 +155,16 @@ void pressedKeysHandler()
 
     if (pressedKeys.find("D") != pressedKeys.end())
         player.setRotation(player.getRotation() + PI / 12);
+
+    if (pressedKeys.find("SPACE") != pressedKeys.end() && player.getBulletsAvailable() > 0) {
+        POINT bulletPosition = player.getPosition();
+        float playerRotation = player.getRotation();
+        bulletPosition.x += static_cast<LONG>(sin(playerRotation) * 17);
+        bulletPosition.y -= static_cast<LONG>(cos(playerRotation) * 17);
+        Bullet* bullet = new Bullet(bulletPosition, 15, player.getRotation());
+        gameObjects.push_back(bullet);
+        player.decreaseBullets();
+    }
 }
 
 //
@@ -218,39 +230,33 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
     case WM_KEYDOWN:
         switch (wParam) {
         case 'W':
-        {
             pressedKeys.insert("W");
             break;
-        }
         case 'A':
-        {
             pressedKeys.insert("A");
             break;
-        }
         case 'D':
-        {
             pressedKeys.insert("D");
             break;
-        }
+        case VK_SPACE:
+            pressedKeys.insert("SPACE");
+            break;
         }
         break;
     case WM_KEYUP:
         switch (wParam) {
         case 'W':
-        {
             pressedKeys.erase("W");
             break;
-        }
         case 'A':
-        {
             pressedKeys.erase("A");
             break;
-        }
         case 'D':
-        {
             pressedKeys.erase("D");
             break;
-        }
+        case VK_SPACE:
+            pressedKeys.erase("SPACE");
+            break;
         }
         break;
     case WM_PAINT:
@@ -260,8 +266,9 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
             Gdiplus::Graphics graphics(hdcBuffer);
             graphics.Clear(Gdiplus::Color::Black);
             // Save the current state of the Graphics object
-            Gdiplus::GraphicsState graphicsState = graphics.Save();
-            for (GameObject* obj : gameObjects) {    
+            
+            for (GameObject* obj : gameObjects) {
+                Gdiplus::GraphicsState graphicsState = graphics.Save();
                 obj->render(graphics);
                 // Restore the original state of the Graphics object
                 graphics.Restore(graphicsState);
