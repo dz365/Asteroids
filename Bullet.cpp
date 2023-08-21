@@ -8,7 +8,12 @@ Bullet::Bullet(POINT position, float velocity, float rotation)
 
 RECT Bullet::getBoundingRect()
 {
-	return RECT();
+	RECT rect{};
+	rect.left = position.x - 3;
+	rect.top = position.y - 3;
+	rect.right = position.x + 3;
+	rect.bottom = position.y + 3;
+	return rect;
 }
 
 void Bullet::render(Gdiplus::Graphics& graphics)

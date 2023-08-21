@@ -31,10 +31,10 @@ int Player::getBulletsAvailable()
 
 RECT Player::getBoundingRect() {
     RECT rect{};
-    rect.left = position.x - 48;
-    rect.top = position.y - 48;
-    rect.right = position.x + 48;
-    rect.bottom = position.y + 48;
+    rect.left = position.x - 12;
+    rect.top = position.y - 12;
+    rect.right = position.x + 12;
+    rect.bottom = position.y + 12;
     return rect;
 }
 
@@ -55,7 +55,7 @@ void Player::update(const HWND& hWnd)
 
 void Player::render(Gdiplus::Graphics& graphics)
 {
-    Gdiplus::Image spaceship(L"spaceship.png"); // 24x24 px
+    Gdiplus::Image spaceship(L"spaceship.png"); // 24x24px
 
     graphics.TranslateTransform(position.x, position.y);
     graphics.RotateTransform(rotation * 180 / 3.14159265358979323846);

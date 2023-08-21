@@ -5,10 +5,10 @@ Asteroid::Asteroid(POINT position, float velocity, float rotation)
 
 RECT Asteroid::getBoundingRect() {
     RECT rect{};
-    rect.left = position.x;
-    rect.top = position.y;
-    rect.right = position.x + 64;
-    rect.bottom = position.y + 64;
+    rect.left = position.x - 30;
+    rect.top = position.y - 30;
+    rect.right = position.x + 30;
+    rect.bottom = position.y + 30;
     return rect;
 }
 
