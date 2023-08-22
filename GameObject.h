@@ -25,8 +25,11 @@ public:
 	float getRotation();
 	void setRotation(float newRotation);
 
+	int getHealth();
+
 	virtual RECT getBoundingRect() = 0;
 	virtual void update(const HWND& hWnd);
 	virtual void render(Gdiplus::Graphics& graphics) = 0;
+	virtual void handleCollision();
 };
 

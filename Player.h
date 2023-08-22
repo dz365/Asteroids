@@ -19,5 +19,6 @@ public:
 	RECT getBoundingRect();
 	void update(const HWND& hWnd) override;
 	void render(Gdiplus::Graphics& graphics);
+	void handleCollision() override;
 };
 

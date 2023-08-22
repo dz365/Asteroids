@@ -29,8 +29,11 @@ BOOL                InitInstance(HINSTANCE, int);
 LRESULT CALLBACK    WndProc(HWND, UINT, WPARAM, LPARAM);
 INT_PTR CALLBACK    About(HWND, UINT, WPARAM, LPARAM);
 
+// Lists containing gameObjects
 Player player;
-std::list<GameObject*> gameObjects;
+std::list<Asteroid*> asteroidObjects;
+std::list<Bullet*> bulletObjects;
+
 std::unordered_set<std::string> pressedKeys;
 constexpr UINT_PTR TIMER_ID = 1;
 
@@ -43,8 +46,7 @@ int APIENTRY wWinMain(_In_ HINSTANCE hInstance,
     UNREFERENCED_PARAMETER(lpCmdLine);
 
     // TODO: Place code here.
-    gameObjects.push_back(&player);
-    gameObjects.push_back(new Asteroid({ 100, 100 }, 5, PI/4, 1));
+    asteroidObjects.push_back(new Asteroid({ 100, 100 }, 5, PI/4, 1));
 
     // Initialize GDI+
     Gdiplus::GdiplusStartupInput gdiplusStartupInput;
@@ -162,9 +164,16 @@ void pressedKeysHandler()
         bulletPosition.x += static_cast<LONG>(sin(playerRotation) * 17);
         bulletPosition.y -= static_cast<LONG>(cos(playerRotation) * 17);
         Bullet* bullet = new Bullet(bulletPosition, 15, player.getRotation(), 1);
-        gameObjects.push_back(bullet);
+        bulletObjects.push_back(bullet);
         player.decreaseBullets();
     }
+}
+
+bool checkCollision(RECT r1, RECT r2)
+{
+    return !(
+        r1.left > r2.right || r2.left > r1.right ||     // horizontal collision
+        r1.bottom < r2.top || r2.bottom < r1.top);      // vertical collision
 }
 
 //
@@ -221,9 +230,44 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
         if (wParam == TIMER_ID)
         {
             pressedKeysHandler();
-            for (GameObject* obj : gameObjects) {
+            player.update(hWnd);
+
+            for (GameObject* obj : asteroidObjects) {
                 obj->update(hWnd);     
             }
+            for (GameObject* obj : bulletObjects) {
+                obj->update(hWnd);
+            }
+
+            // Handle player-object collisions
+            RECT playerHitbox = player.getBoundingRect();
+            for (Asteroid* asteroid : asteroidObjects) {
+                if (checkCollision(playerHitbox, asteroid->getBoundingRect())) {
+                    player.handleCollision();
+                    asteroid->handleCollision();
+                    asteroidObjects.remove(asteroid);
+                    break;
+                }
+            }
+
+            // Handle bullet-object collisions
+            std::list<Bullet*> bulletsToRemove;
+            for (Bullet* bullet : bulletObjects) {
+                RECT bulletHitbox = bullet->getBoundingRect();
+                for (Asteroid* asteroid : asteroidObjects) {
+                    if (checkCollision(bulletHitbox, asteroid->getBoundingRect())) {
+                        bullet->handleCollision();
+                        asteroid->handleCollision();
+                        asteroidObjects.remove(asteroid);
+                        bulletsToRemove.push_back(bullet);
+                        break;
+                    }
+                }
+            }
+            for (Bullet* bullet : bulletsToRemove) {
+                bulletObjects.remove(bullet);
+            }
+
             InvalidateRect(hWnd, nullptr, FALSE);
         }
         break;
@@ -267,12 +311,25 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
             graphics.Clear(Gdiplus::Color::Black);
             // Save the current state of the Graphics object
             
-            for (GameObject* obj : gameObjects) {
+            Gdiplus::GraphicsState graphicsState = graphics.Save();
+            player.render(graphics);
+            // Restore the original state of the Graphics object
+            graphics.Restore(graphicsState);
+
+            for (GameObject* obj : asteroidObjects) {
                 Gdiplus::GraphicsState graphicsState = graphics.Save();
                 obj->render(graphics);
                 // Restore the original state of the Graphics object
                 graphics.Restore(graphicsState);
             }
+
+            for (GameObject* obj : bulletObjects) {
+                Gdiplus::GraphicsState graphicsState = graphics.Save();
+                obj->render(graphics);
+                // Restore the original state of the Graphics object
+                graphics.Restore(graphicsState);
+            }
+
             // Copy the entire buffered content to the window DC
             BitBlt(hdc, 0, 0, clientWidth, clientHeight, hdcBuffer, 0, 0, SRCCOPY);
 

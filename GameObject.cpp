@@ -27,6 +27,10 @@ void GameObject::setRotation(float newRotation) {
 	rotation = newRotation;
 }
 
+int GameObject::getHealth() {
+	return health;
+}
+
 void GameObject::update(const HWND& hWnd)
 {
 	// Update position
@@ -46,4 +50,8 @@ void GameObject::update(const HWND& hWnd)
 		position.y = windowHeight;
 	if (position.y > windowHeight)
 		position.y = 0;
+}
+
+void GameObject::handleCollision() {
+	health--;
 }

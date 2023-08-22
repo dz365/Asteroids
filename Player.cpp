@@ -1,6 +1,6 @@
 #include "Player.h"
 
-Player::Player() : GameObject({ 150, 150 }, 0, 0, 3) 
+Player::Player() : GameObject({ 250, 250 }, 0, 0, 3) 
 {
     engineOn = false;
     bulletsAvailable = 5;
@@ -77,3 +77,7 @@ void Player::render(Gdiplus::Graphics& graphics)
 	}
 }
 
+void Player::handleCollision() {
+    GameObject::handleCollision();
+    position = { 250, 250 };
+}
