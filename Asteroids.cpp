@@ -44,7 +44,7 @@ int APIENTRY wWinMain(_In_ HINSTANCE hInstance,
 
     // TODO: Place code here.
     gameObjects.push_back(&player);
-    gameObjects.push_back(new Asteroid({ 100, 100 }, 5, PI/4));
+    gameObjects.push_back(new Asteroid({ 100, 100 }, 5, PI/4, 1));
 
     // Initialize GDI+
     Gdiplus::GdiplusStartupInput gdiplusStartupInput;
@@ -161,7 +161,7 @@ void pressedKeysHandler()
         float playerRotation = player.getRotation();
         bulletPosition.x += static_cast<LONG>(sin(playerRotation) * 17);
         bulletPosition.y -= static_cast<LONG>(cos(playerRotation) * 17);
-        Bullet* bullet = new Bullet(bulletPosition, 15, player.getRotation());
+        Bullet* bullet = new Bullet(bulletPosition, 15, player.getRotation(), 1);
         gameObjects.push_back(bullet);
         player.decreaseBullets();
     }

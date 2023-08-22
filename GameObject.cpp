@@ -1,7 +1,7 @@
 #include "GameObject.h"
 
-GameObject::GameObject(POINT position, float velocity, float rotation) 
-	: position(position), velocity(velocity), rotation(rotation) {}
+GameObject::GameObject(POINT position, float velocity, float rotation, int health) 
+	: position(position), velocity(velocity), rotation(rotation), health(health) {}
 
 POINT GameObject::getPosition() const {
 	return position;

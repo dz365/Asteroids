@@ -1,6 +1,6 @@
 #include "Player.h"
 
-Player::Player() : GameObject({ 150, 150 }, 0, 0) 
+Player::Player() : GameObject({ 150, 150 }, 0, 0, 3) 
 {
     engineOn = false;
     bulletsAvailable = 5;

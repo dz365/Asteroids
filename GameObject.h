@@ -11,9 +11,10 @@ protected:
 	POINT position; // center
 	float velocity; // x km/s
 	float rotation; // in radians.
+	int health;
 
 public:
-	GameObject(POINT position, float velocity, float rotation);
+	GameObject(POINT position, float velocity, float rotation, int health);
 
 	POINT getPosition() const;
 	void setPosition(POINT newPosition);

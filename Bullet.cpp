@@ -1,7 +1,7 @@
 #include "Bullet.h"
 #include <string>
-Bullet::Bullet(POINT position, float velocity, float rotation)
-	: GameObject(position, velocity, rotation)
+Bullet::Bullet(POINT position, float velocity, float rotation, int health)
+	: GameObject(position, velocity, rotation, health)
 {
 
 }

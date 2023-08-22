@@ -1,7 +1,7 @@
 #include "Asteroid.h"
 
-Asteroid::Asteroid(POINT position, float velocity, float rotation) 
-	: GameObject(position, velocity, rotation) {}
+Asteroid::Asteroid(POINT position, float velocity, float rotation, int health) 
+	: GameObject(position, velocity, rotation, health) {}
 
 RECT Asteroid::getBoundingRect() {
     RECT rect{};
