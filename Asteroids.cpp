@@ -34,6 +34,7 @@ Player player;
 std::list<Asteroid*> asteroidObjects;
 std::list<Bullet*> bulletObjects;
 
+int score = 0;
 std::unordered_set<std::string> pressedKeys;
 constexpr UINT_PTR TIMER_ID = 1;
 
@@ -260,6 +261,7 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
                         asteroid->handleCollision();
                         asteroidObjects.remove(asteroid);
                         bulletsToRemove.push_back(bullet);
+                        score += 100;
                         break;
                     }
                 }
@@ -317,6 +319,12 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
                 graphics.DrawImage(&spaceship, 30 * i + 10, 10);
             }
             
+            Gdiplus::SolidBrush textBrush(Gdiplus::Color(255, 255, 255));
+            Gdiplus::FontFamily fontFamily(L"Arial");
+            Gdiplus::Font font(&fontFamily, 32, Gdiplus::FontStyleRegular, Gdiplus::UnitPixel);
+            Gdiplus::PointF point(clientWidth / 2 - 16, 10);
+            std::wstring scoreStr = std::to_wstring(score);
+            graphics.DrawString(scoreStr.c_str(), -1, &font, point, &textBrush);
 
             Gdiplus::GraphicsState graphicsState = graphics.Save();
             player.render(graphics);
