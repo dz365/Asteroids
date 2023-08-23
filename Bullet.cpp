@@ -3,7 +3,11 @@
 Bullet::Bullet(POINT position, float velocity, float rotation, int health)
 	: GameObject(position, velocity, rotation, health)
 {
+	distanceTravelled = 0;
+}
 
+float Bullet::getDistanceTravelled() {
+	return distanceTravelled;
 }
 
 RECT Bullet::getBoundingRect()
@@ -14,6 +18,15 @@ RECT Bullet::getBoundingRect()
 	rect.right = position.x + 3;
 	rect.bottom = position.y + 3;
 	return rect;
+}
+
+void Bullet::update(const HWND& hWnd)
+{
+	distanceTravelled += sqrt(
+		pow(sin(rotation) * velocity, 2) + pow(cos(rotation) * velocity, 2)
+	);
+
+	GameObject::update(hWnd);
 }
 
 void Bullet::render(Gdiplus::Graphics& graphics)

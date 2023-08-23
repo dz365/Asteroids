@@ -272,6 +272,20 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
                 player.increaseBullets();
             }
 
+            bulletsToRemove.clear();
+
+            // Remove bullets that have travelled past a set distance
+            for (Bullet* bullet : bulletObjects) {
+                if (bullet->getDistanceTravelled() > clientWidth) {
+                    bulletsToRemove.push_back(bullet);
+                }
+            }
+
+            for (Bullet* bullet : bulletsToRemove) {
+                bulletObjects.remove(bullet);
+                player.increaseBullets();
+            }
+
             InvalidateRect(hWnd, nullptr, FALSE);
             break;
         }
