@@ -311,6 +311,13 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
             graphics.Clear(Gdiplus::Color::Black);
             // Save the current state of the Graphics object
             
+            Gdiplus::Image spaceship(L"spaceship.png"); // 24x24px
+
+            for (int i = 0; i < player.getHealth(); i++) {
+                graphics.DrawImage(&spaceship, 30 * i + 10, 10);
+            }
+            
+
             Gdiplus::GraphicsState graphicsState = graphics.Save();
             player.render(graphics);
             // Restore the original state of the Graphics object
