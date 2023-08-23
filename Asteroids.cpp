@@ -13,6 +13,8 @@
 #include <gdiplus.h>
 #include <list>
 #include <cmath>
+#include <random>
+
 #pragma comment (lib,"Gdiplus.lib")
 
 #define MAX_LOADSTRING 100
@@ -37,6 +39,7 @@ std::list<Bullet*> bulletObjects;
 int score = 0;
 std::unordered_set<std::string> pressedKeys;
 constexpr UINT_PTR TIMER_ID = 1;
+constexpr UINT_PTR GENERATE_ASTEROID_TIMER_ID = 2;
 
 int APIENTRY wWinMain(_In_ HINSTANCE hInstance,
                      _In_opt_ HINSTANCE hPrevInstance,
@@ -45,9 +48,6 @@ int APIENTRY wWinMain(_In_ HINSTANCE hInstance,
 {
     UNREFERENCED_PARAMETER(hPrevInstance);
     UNREFERENCED_PARAMETER(lpCmdLine);
-
-    // TODO: Place code here.
-    asteroidObjects.push_back(new Asteroid({ 100, 100 }, 5, PI/4, 1));
 
     // Initialize GDI+
     Gdiplus::GdiplusStartupInput gdiplusStartupInput;
@@ -138,6 +138,7 @@ BOOL InitInstance(HINSTANCE hInstance, int nCmdShow)
    UpdateWindow(hWnd);
 
    SetTimer(hWnd, TIMER_ID, 50, nullptr);
+   SetTimer(hWnd, GENERATE_ASTEROID_TIMER_ID, 3000, nullptr);
 
    return TRUE;
 }
@@ -228,13 +229,13 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
         }
         break;
     case WM_TIMER:
-        if (wParam == TIMER_ID)
-        {
+        switch (wParam) {
+        case TIMER_ID: {
             pressedKeysHandler();
             player.update(hWnd);
 
             for (GameObject* obj : asteroidObjects) {
-                obj->update(hWnd);     
+                obj->update(hWnd);
             }
             for (GameObject* obj : bulletObjects) {
                 obj->update(hWnd);
@@ -268,9 +269,24 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
             }
             for (Bullet* bullet : bulletsToRemove) {
                 bulletObjects.remove(bullet);
+                player.increaseBullets();
             }
 
             InvalidateRect(hWnd, nullptr, FALSE);
+            break;
+        }
+        case GENERATE_ASTEROID_TIMER_ID:
+            // Create a random number generator engine
+            std::random_device rd;
+            std::mt19937 gen(rd()); // Mersenne Twister engine
+            std::uniform_int_distribution<int> distribution(0, clientWidth);
+
+            // Generate a random number
+            int randomX = distribution(gen) % clientWidth;
+            int randomY = distribution(gen) % 2 ? 0 : clientHeight;
+            int randomRotation = distribution(gen);
+            asteroidObjects.push_back(new Asteroid({ randomX, randomY }, 5, randomRotation, 1));
+            break;
         }
         break;
     case WM_KEYDOWN:
