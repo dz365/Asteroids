@@ -32,11 +32,13 @@ LRESULT CALLBACK    WndProc(HWND, UINT, WPARAM, LPARAM);
 INT_PTR CALLBACK    About(HWND, UINT, WPARAM, LPARAM);
 
 // Lists containing gameObjects
-Player player;
+Player* player = new Player();
 std::list<Asteroid*> asteroidObjects;
 std::list<Bullet*> bulletObjects;
 
 int score = 0;
+HWND NEWGAME_BUTTON;
+const int BTN_NEWGAME = 1;
 std::unordered_set<std::string> pressedKeys;
 constexpr UINT_PTR TIMER_ID = 1;
 constexpr UINT_PTR GENERATE_ASTEROID_TIMER_ID = 2;
@@ -147,27 +149,28 @@ void pressedKeysHandler()
 {
     if (pressedKeys.find("W") == pressedKeys.end())
     {
-        player.stopEngine();
+        player->stopEngine();
     } 
     else
     {
-        player.startEngine();
+        player->startEngine();
     }
 
     if (pressedKeys.find("A") != pressedKeys.end())
-        player.setRotation(player.getRotation() - PI / 12);
+        player->setRotation(player->getRotation() - PI / 12);
 
     if (pressedKeys.find("D") != pressedKeys.end())
-        player.setRotation(player.getRotation() + PI / 12);
+        player->setRotation(player->getRotation() + PI / 12);
 
-    if (pressedKeys.find("SPACE") != pressedKeys.end() && player.getBulletsAvailable() > 0) {
-        POINT bulletPosition = player.getPosition();
-        float playerRotation = player.getRotation();
+    if (pressedKeys.find("SPACE") != pressedKeys.end() && player->getBulletsAvailable() > 0) {
+        POINT bulletPosition = player->getPosition();
+        float playerRotation = player->getRotation();
         bulletPosition.x += static_cast<LONG>(sin(playerRotation) * 17);
         bulletPosition.y -= static_cast<LONG>(cos(playerRotation) * 17);
-        Bullet* bullet = new Bullet(bulletPosition, 15, player.getRotation(), 1);
+        Bullet* bullet = new Bullet(bulletPosition, 15, player->getRotation(), 1);
         bulletObjects.push_back(bullet);
-        player.decreaseBullets();
+        player->decreaseBullets();
+        pressedKeys.erase("SPACE");
     }
 }
 
@@ -178,6 +181,12 @@ bool checkCollision(RECT r1, RECT r2)
         r1.bottom < r2.top || r2.bottom < r1.top);      // vertical collision
 }
 
+void createNewGame() {
+    asteroidObjects.clear();
+    bulletObjects.clear();
+    score = 0;
+    player = new Player();
+}
 //
 //  FUNCTION: WndProc(HWND, UINT, WPARAM, LPARAM)
 //
@@ -217,6 +226,11 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
             // Parse the menu selections:
             switch (wmId)
             {
+            case BTN_NEWGAME:
+                createNewGame();
+                SetFocus(hWnd);
+                ShowWindow(NEWGAME_BUTTON, SW_HIDE);
+                break;
             case IDM_ABOUT:
                 DialogBox(hInst, MAKEINTRESOURCE(IDD_ABOUTBOX), hWnd, About);
                 break;
@@ -231,8 +245,10 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
     case WM_TIMER:
         switch (wParam) {
         case TIMER_ID: {
+            if (player->getHealth() <= 0)
+                break;
             pressedKeysHandler();
-            player.update(hWnd);
+            player->update(hWnd);
 
             for (GameObject* obj : asteroidObjects) {
                 obj->update(hWnd);
@@ -242,10 +258,10 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
             }
 
             // Handle player-object collisions
-            RECT playerHitbox = player.getBoundingRect();
+            RECT playerHitbox = player->getBoundingRect();
             for (Asteroid* asteroid : asteroidObjects) {
                 if (checkCollision(playerHitbox, asteroid->getBoundingRect())) {
-                    player.handleCollision();
+                    player->handleCollision();
                     asteroid->handleCollision();
                     asteroidObjects.remove(asteroid);
                     break;
@@ -261,6 +277,7 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
                         bullet->handleCollision();
                         asteroid->handleCollision();
                         asteroidObjects.remove(asteroid);
+                        delete asteroid;
                         bulletsToRemove.push_back(bullet);
                         score += 100;
                         break;
@@ -269,7 +286,8 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
             }
             for (Bullet* bullet : bulletsToRemove) {
                 bulletObjects.remove(bullet);
-                player.increaseBullets();
+                delete bullet;
+                player->increaseBullets();
             }
 
             bulletsToRemove.clear();
@@ -283,7 +301,8 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 
             for (Bullet* bullet : bulletsToRemove) {
                 bulletObjects.remove(bullet);
-                player.increaseBullets();
+                delete bullet;
+                player->increaseBullets();
             }
 
             InvalidateRect(hWnd, nullptr, FALSE);
@@ -314,9 +333,6 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
         case 'D':
             pressedKeys.insert("D");
             break;
-        case VK_SPACE:
-            pressedKeys.insert("SPACE");
-            break;
         }
         break;
     case WM_KEYUP:
@@ -331,12 +347,25 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
             pressedKeys.erase("D");
             break;
         case VK_SPACE:
-            pressedKeys.erase("SPACE");
+            pressedKeys.insert("SPACE");
             break;
         }
         break;
     case WM_PAINT:
         {
+        if (player->getHealth() <= 0) {
+            NEWGAME_BUTTON = CreateWindowEx(
+                0,
+                L"BUTTON",
+                L"New Game",
+                WS_VISIBLE | WS_CHILD,
+                10, 10, 100, 30,
+                hWnd,
+                (HMENU)BTN_NEWGAME,  // Set a unique ID for the button
+                GetModuleHandle(NULL),
+                NULL
+            );
+        }
             PAINTSTRUCT ps;
             HDC hdc = BeginPaint(hWnd, &ps);
             Gdiplus::Graphics graphics(hdcBuffer);
@@ -345,7 +374,7 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
             
             Gdiplus::Image spaceship(L"spaceship.png"); // 24x24px
 
-            for (int i = 0; i < player.getHealth(); i++) {
+            for (int i = 0; i < player->getHealth(); i++) {
                 graphics.DrawImage(&spaceship, 30 * i + 10, 10);
             }
             
@@ -357,7 +386,7 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
             graphics.DrawString(scoreStr.c_str(), -1, &font, point, &textBrush);
 
             Gdiplus::GraphicsState graphicsState = graphics.Save();
-            player.render(graphics);
+            player->render(graphics);
             // Restore the original state of the Graphics object
             graphics.Restore(graphicsState);
 
