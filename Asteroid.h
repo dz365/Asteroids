@@ -13,6 +13,7 @@ private:
 	Size size;
 public:
 	Asteroid(POINT position, float velocity, float rotation, int health, Size size);
+	Size getSize();
 	RECT getBoundingRect();
 	void render(Gdiplus::Graphics& graphics);
 };

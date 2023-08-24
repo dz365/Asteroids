@@ -265,22 +265,22 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
                     player->handleCollision();
                     asteroid->handleCollision();
                     asteroidObjects.remove(asteroid);
+                    delete asteroid;
                     break;
                 }
             }
 
             // Handle bullet-object collisions
             std::list<Bullet*> bulletsToRemove;
+            std::list<Asteroid*>asteroidsToRemove;
             for (Bullet* bullet : bulletObjects) {
                 RECT bulletHitbox = bullet->getBoundingRect();
                 for (Asteroid* asteroid : asteroidObjects) {
                     if (checkCollision(bulletHitbox, asteroid->getBoundingRect())) {
                         bullet->handleCollision();
                         asteroid->handleCollision();
-                        asteroidObjects.remove(asteroid);
-                        delete asteroid;
                         bulletsToRemove.push_back(bullet);
-                        score += 100;
+                        asteroidsToRemove.push_back(asteroid);
                         break;
                     }
                 }
@@ -291,6 +291,32 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
                 player->increaseBullets();
             }
 
+            for (Asteroid* asteroid : asteroidsToRemove) {
+                asteroidObjects.remove(asteroid);
+                POINT newAsteroidPosition = asteroid->getPosition();
+                if (asteroid->getSize() != SMALL) {
+                    Size newAsteroidSize = asteroid->getSize() == LARGE ? MEDIUM : SMALL;
+                    score += asteroid->getSize() == LARGE ? 150 : 100;
+                    asteroidObjects.push_back(new Asteroid(
+                        newAsteroidPosition,
+                        asteroid->getVelocity(),
+                        asteroid->getRotation() - (PI / 2),
+                        1,
+                        newAsteroidSize)
+                    );
+                    asteroidObjects.push_back(new Asteroid(
+                        newAsteroidPosition,
+                        asteroid->getVelocity(),
+                        asteroid->getRotation() + (PI / 2),
+                        1,
+                        newAsteroidSize)
+                    );
+                }
+                else {
+                    score += 50;
+                }
+                delete asteroid;
+            }
             bulletsToRemove.clear();
 
             // Remove bullets that have travelled past a set distance

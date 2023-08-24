@@ -4,6 +4,10 @@ Asteroid::Asteroid(POINT position, float velocity, float rotation, int health, S
 	: GameObject(position, velocity, rotation, health), size(size) {
 }
 
+Size Asteroid::getSize() {
+    return size;
+}
+
 RECT Asteroid::getBoundingRect() {
     RECT rect{};
     rect.left = position.x - 30;
