@@ -184,6 +184,7 @@ bool checkCollision(RECT r1, RECT r2)
 void createNewGame() {
     asteroidObjects.clear();
     bulletObjects.clear();
+    pressedKeys.clear();
     score = 0;
     player = new Player();
 }
@@ -318,7 +319,7 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
             int randomX = distribution(gen) % clientWidth;
             int randomY = distribution(gen) % 2 ? 0 : clientHeight;
             int randomRotation = distribution(gen);
-            asteroidObjects.push_back(new Asteroid({ randomX, randomY }, 5, randomRotation, 1));
+            asteroidObjects.push_back(new Asteroid({ randomX, randomY }, 5, randomRotation, 1, LARGE));
             break;
         }
         break;

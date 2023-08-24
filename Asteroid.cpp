@@ -1,7 +1,8 @@
 #include "Asteroid.h"
 
-Asteroid::Asteroid(POINT position, float velocity, float rotation, int health) 
-	: GameObject(position, velocity, rotation, health) {}
+Asteroid::Asteroid(POINT position, float velocity, float rotation, int health, Size size) 
+	: GameObject(position, velocity, rotation, health), size(size) {
+}
 
 RECT Asteroid::getBoundingRect() {
     RECT rect{};
@@ -15,8 +16,12 @@ RECT Asteroid::getBoundingRect() {
 void Asteroid::render(Gdiplus::Graphics& graphics)
 {
 	Gdiplus::Image asteroid(L"asteroid.png"); // 58x61px
-	graphics.DrawImage(
-        &asteroid, 
-        static_cast<int>(position.x - 26), 
-        static_cast<int>(position.y - 30));
+
+    int numericSize = static_cast<int>(size);
+    graphics.DrawImage(
+        &asteroid,
+        static_cast<int>(position.x - numericSize / 2),
+        static_cast<int>(position.y - numericSize / 2),
+        numericSize,
+        numericSize);
 };
