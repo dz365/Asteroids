@@ -167,7 +167,7 @@ void pressedKeysHandler()
         float playerRotation = player->getRotation();
         bulletPosition.x += static_cast<LONG>(sin(playerRotation) * 17);
         bulletPosition.y -= static_cast<LONG>(cos(playerRotation) * 17);
-        bulletObjects.push_back(std::make_unique<Bullet>(bulletPosition, 15, player->getRotation(), 1));
+        bulletObjects.push_back(std::make_shared<Bullet>(bulletPosition, 15, player->getRotation(), 1));
         player->decreaseBullets();
         pressedKeys.erase("SPACE");
     }
@@ -294,14 +294,14 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
                 if (asteroid->getSize() != SMALL) {
                     Size newAsteroidSize = asteroid->getSize() == LARGE ? MEDIUM : SMALL;
                     score += asteroid->getSize() == LARGE ? 150 : 100;
-                    asteroidObjects.push_back(std::make_unique<Asteroid>(
+                    asteroidObjects.push_back(std::make_shared<Asteroid>(
                         newAsteroidPosition,
                         asteroid->getVelocity(),
                         asteroid->getRotation() - (PI / 2),
                         1,
                         newAsteroidSize)
                     );
-                    asteroidObjects.push_back(std::make_unique<Asteroid>(
+                    asteroidObjects.push_back(std::make_shared<Asteroid>(
                         newAsteroidPosition,
                         asteroid->getVelocity(),
                         asteroid->getRotation() + (PI / 2),
@@ -341,7 +341,7 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
             int randomY = distribution(gen) % 2 ? 0 : clientHeight;
             int randomRotation = distribution(gen);
             POINT position = { randomX, randomY };
-            asteroidObjects.push_back(std::make_unique<Asteroid>(position, 5, randomRotation, 1, LARGE));
+            asteroidObjects.push_back(std::make_shared<Asteroid>(position, 5, randomRotation, 1, LARGE));
             break;
         }
         break;
