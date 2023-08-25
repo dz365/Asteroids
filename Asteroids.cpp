@@ -33,8 +33,8 @@ INT_PTR CALLBACK    About(HWND, UINT, WPARAM, LPARAM);
 
 // Lists containing gameObjects
 Player* player = new Player();
-std::list<Asteroid*> asteroidObjects;
-std::list<Bullet*> bulletObjects;
+std::list<std::shared_ptr<Asteroid>> asteroidObjects;
+std::list<std::shared_ptr<Bullet>> bulletObjects;
 
 int score = 0;
 HWND NEWGAME_BUTTON;
@@ -167,8 +167,7 @@ void pressedKeysHandler()
         float playerRotation = player->getRotation();
         bulletPosition.x += static_cast<LONG>(sin(playerRotation) * 17);
         bulletPosition.y -= static_cast<LONG>(cos(playerRotation) * 17);
-        Bullet* bullet = new Bullet(bulletPosition, 15, player->getRotation(), 1);
-        bulletObjects.push_back(bullet);
+        bulletObjects.push_back(std::make_unique<Bullet>(bulletPosition, 15, player->getRotation(), 1));
         player->decreaseBullets();
         pressedKeys.erase("SPACE");
     }
@@ -251,31 +250,30 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
             pressedKeysHandler();
             player->update(hWnd);
 
-            for (GameObject* obj : asteroidObjects) {
+            for (auto& obj : asteroidObjects) {
                 obj->update(hWnd);
             }
-            for (GameObject* obj : bulletObjects) {
+            for (auto& obj : bulletObjects) {
                 obj->update(hWnd);
             }
 
             // Handle player-object collisions
             RECT playerHitbox = player->getBoundingRect();
-            for (Asteroid* asteroid : asteroidObjects) {
+            for (auto& asteroid : asteroidObjects) {
                 if (checkCollision(playerHitbox, asteroid->getBoundingRect())) {
                     player->handleCollision();
                     asteroid->handleCollision();
                     asteroidObjects.remove(asteroid);
-                    delete asteroid;
                     break;
                 }
             }
 
             // Handle bullet-object collisions
-            std::list<Bullet*> bulletsToRemove;
-            std::list<Asteroid*>asteroidsToRemove;
-            for (Bullet* bullet : bulletObjects) {
+            std::list<std::shared_ptr<Bullet>> bulletsToRemove;
+            std::list<std::shared_ptr<Asteroid>>asteroidsToRemove;
+            for (auto& bullet : bulletObjects) {
                 RECT bulletHitbox = bullet->getBoundingRect();
-                for (Asteroid* asteroid : asteroidObjects) {
+                for (auto& asteroid : asteroidObjects) {
                     if (checkCollision(bulletHitbox, asteroid->getBoundingRect())) {
                         bullet->handleCollision();
                         asteroid->handleCollision();
@@ -285,26 +283,25 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
                     }
                 }
             }
-            for (Bullet* bullet : bulletsToRemove) {
+            for (auto& bullet : bulletsToRemove) {
                 bulletObjects.remove(bullet);
-                delete bullet;
                 player->increaseBullets();
             }
 
-            for (Asteroid* asteroid : asteroidsToRemove) {
+            for (auto& asteroid : asteroidsToRemove) {
                 asteroidObjects.remove(asteroid);
                 POINT newAsteroidPosition = asteroid->getPosition();
                 if (asteroid->getSize() != SMALL) {
                     Size newAsteroidSize = asteroid->getSize() == LARGE ? MEDIUM : SMALL;
                     score += asteroid->getSize() == LARGE ? 150 : 100;
-                    asteroidObjects.push_back(new Asteroid(
+                    asteroidObjects.push_back(std::make_unique<Asteroid>(
                         newAsteroidPosition,
                         asteroid->getVelocity(),
                         asteroid->getRotation() - (PI / 2),
                         1,
                         newAsteroidSize)
                     );
-                    asteroidObjects.push_back(new Asteroid(
+                    asteroidObjects.push_back(std::make_unique<Asteroid>(
                         newAsteroidPosition,
                         asteroid->getVelocity(),
                         asteroid->getRotation() + (PI / 2),
@@ -315,20 +312,18 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
                 else {
                     score += 50;
                 }
-                delete asteroid;
             }
             bulletsToRemove.clear();
 
             // Remove bullets that have travelled past a set distance
-            for (Bullet* bullet : bulletObjects) {
+            for (auto& bullet : bulletObjects) {
                 if (bullet->getDistanceTravelled() > clientWidth) {
                     bulletsToRemove.push_back(bullet);
                 }
             }
 
-            for (Bullet* bullet : bulletsToRemove) {
+            for (auto& bullet : bulletsToRemove) {
                 bulletObjects.remove(bullet);
-                delete bullet;
                 player->increaseBullets();
             }
 
@@ -345,7 +340,8 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
             int randomX = distribution(gen) % clientWidth;
             int randomY = distribution(gen) % 2 ? 0 : clientHeight;
             int randomRotation = distribution(gen);
-            asteroidObjects.push_back(new Asteroid({ randomX, randomY }, 5, randomRotation, 1, LARGE));
+            POINT position = { randomX, randomY };
+            asteroidObjects.push_back(std::make_unique<Asteroid>(position, 5, randomRotation, 1, LARGE));
             break;
         }
         break;
@@ -417,14 +413,14 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
             // Restore the original state of the Graphics object
             graphics.Restore(graphicsState);
 
-            for (GameObject* obj : asteroidObjects) {
+            for (auto& obj : asteroidObjects) {
                 Gdiplus::GraphicsState graphicsState = graphics.Save();
                 obj->render(graphics);
                 // Restore the original state of the Graphics object
                 graphics.Restore(graphicsState);
             }
 
-            for (GameObject* obj : bulletObjects) {
+            for (auto& obj : bulletObjects) {
                 Gdiplus::GraphicsState graphicsState = graphics.Save();
                 obj->render(graphics);
                 // Restore the original state of the Graphics object
