@@ -10,10 +10,11 @@ Size Asteroid::getSize() {
 
 RECT Asteroid::getBoundingRect() {
     RECT rect{};
-    rect.left = position.x - 30;
-    rect.top = position.y - 30;
-    rect.right = position.x + 30;
-    rect.bottom = position.y + 30;
+    int numericSizeHalfWidth = static_cast<int>(size) / 2;
+    rect.left = position.x - numericSizeHalfWidth;
+    rect.top = position.y - numericSizeHalfWidth;
+    rect.right = position.x + numericSizeHalfWidth;
+    rect.bottom = position.y + numericSizeHalfWidth;
     return rect;
 }
 

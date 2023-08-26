@@ -6,6 +6,7 @@
 #include "Player.h"
 #include "Asteroid.h"
 #include "Bullet.h"
+#include "Alien.h"
 #include "GameObject.h"
 #include <unordered_set>
 #include <string>
@@ -35,6 +36,7 @@ INT_PTR CALLBACK    About(HWND, UINT, WPARAM, LPARAM);
 Player* player = new Player();
 std::list<std::shared_ptr<Asteroid>> asteroidObjects;
 std::list<std::shared_ptr<Bullet>> bulletObjects;
+std::list<std::shared_ptr<Alien>> alienObjects;
 
 int score = 0;
 HWND NEWGAME_BUTTON;
@@ -42,6 +44,7 @@ const int BTN_NEWGAME = 1;
 std::unordered_set<std::string> pressedKeys;
 constexpr UINT_PTR TIMER_ID = 1;
 constexpr UINT_PTR GENERATE_ASTEROID_TIMER_ID = 2;
+constexpr UINT_PTR GENERATE_ALIEN_TIMER_ID = 3;
 
 int APIENTRY wWinMain(_In_ HINSTANCE hInstance,
                      _In_opt_ HINSTANCE hPrevInstance,
@@ -140,8 +143,8 @@ BOOL InitInstance(HINSTANCE hInstance, int nCmdShow)
    UpdateWindow(hWnd);
 
    SetTimer(hWnd, TIMER_ID, 50, nullptr);
-   SetTimer(hWnd, GENERATE_ASTEROID_TIMER_ID, 3000, nullptr);
-
+   SetTimer(hWnd, GENERATE_ASTEROID_TIMER_ID, 1500, nullptr);
+   SetTimer(hWnd, GENERATE_ALIEN_TIMER_ID, 5000, nullptr);
    return TRUE;
 }
 
@@ -183,6 +186,7 @@ bool checkCollision(RECT r1, RECT r2)
 void createNewGame() {
     asteroidObjects.clear();
     bulletObjects.clear();
+    alienObjects.clear();
     pressedKeys.clear();
     score = 0;
     player = new Player();
@@ -254,6 +258,9 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
                 obj->update(hWnd);
             }
             for (auto& obj : bulletObjects) {
+                obj->update(hWnd);
+            }
+            for (auto& obj : alienObjects) {
                 obj->update(hWnd);
             }
 
@@ -330,19 +337,32 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
             InvalidateRect(hWnd, nullptr, FALSE);
             break;
         }
-        case GENERATE_ASTEROID_TIMER_ID:
+        case GENERATE_ASTEROID_TIMER_ID: {
             // Create a random number generator engine
             std::random_device rd;
             std::mt19937 gen(rd()); // Mersenne Twister engine
             std::uniform_int_distribution<int> distribution(0, clientWidth);
 
             // Generate a random number
-            int randomX = distribution(gen) % clientWidth;
+            int randomX = distribution(gen);
             int randomY = distribution(gen) % 2 ? 0 : clientHeight;
             int randomRotation = distribution(gen);
             POINT position = { randomX, randomY };
             asteroidObjects.push_back(std::make_shared<Asteroid>(position, 5, randomRotation, 1, LARGE));
             break;
+        }
+        case GENERATE_ALIEN_TIMER_ID: {
+            // Create a random number generator engine
+            std::random_device rd;
+            std::mt19937 gen(rd()); // Mersenne Twister engine
+            std::uniform_int_distribution<int> distribution(0, clientHeight);
+
+            // Generate a random number
+            int randomY = distribution(gen);
+            POINT position = { 0, randomY };
+            alienObjects.push_back(std::make_shared<Alien>(position, 5, PI / 2, 1));
+            break;
+        }
         }
         break;
     case WM_KEYDOWN:
@@ -421,6 +441,13 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
             }
 
             for (auto& obj : bulletObjects) {
+                Gdiplus::GraphicsState graphicsState = graphics.Save();
+                obj->render(graphics);
+                // Restore the original state of the Graphics object
+                graphics.Restore(graphicsState);
+            }
+
+            for (auto& obj : alienObjects) {
                 Gdiplus::GraphicsState graphicsState = graphics.Save();
                 obj->render(graphics);
                 // Restore the original state of the Graphics object
