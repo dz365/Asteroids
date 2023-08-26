@@ -13,6 +13,7 @@
 #include <objidl.h>
 #include <gdiplus.h>
 #include <list>
+#include <unordered_map>
 #include <cmath>
 #include <random>
 
@@ -37,8 +38,11 @@ Player* player = new Player();
 std::list<std::shared_ptr<Asteroid>> asteroidObjects;
 std::list<std::shared_ptr<Bullet>> bulletObjects;
 std::list<std::shared_ptr<Alien>> alienObjects;
+std::list<std::shared_ptr<Bullet>> alienBulletObjects;
+std::unordered_map<UINT_PTR, std::shared_ptr<Alien>> alienTimers;
 
 int score = 0;
+int numAliensGenerated = 0;
 HWND NEWGAME_BUTTON;
 const int BTN_NEWGAME = 1;
 std::unordered_set<std::string> pressedKeys;
@@ -183,10 +187,17 @@ bool checkCollision(RECT r1, RECT r2)
         r1.bottom < r2.top || r2.bottom < r1.top);      // vertical collision
 }
 
-void createNewGame() {
+void createNewGame(HWND hWnd) {
     asteroidObjects.clear();
     bulletObjects.clear();
+
+    // Need to stop alien timers first
+    for (const auto& pair : alienTimers) {
+        KillTimer(hWnd, pair.first);
+    }
+    alienTimers.clear();
     alienObjects.clear();
+    alienBulletObjects.clear();
     pressedKeys.clear();
     score = 0;
     player = new Player();
@@ -231,7 +242,7 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
             switch (wmId)
             {
             case BTN_NEWGAME:
-                createNewGame();
+                createNewGame(hWnd);
                 SetFocus(hWnd);
                 ShowWindow(NEWGAME_BUTTON, SW_HIDE);
                 break;
@@ -263,6 +274,9 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
             for (auto& obj : alienObjects) {
                 obj->update(hWnd);
             }
+            for (auto& obj : alienBulletObjects) {
+                obj->update(hWnd);
+            }
 
             // Handle player-object collisions
             RECT playerHitbox = player->getBoundingRect();
@@ -278,6 +292,8 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
                 if (checkCollision(playerHitbox, alien->getBoundingRect())) {
                     player->handleCollision();
                     alien->handleCollision();
+                    KillTimer(hWnd, alien->getId());
+                    alienTimers.erase(alien->getId());
                     alienObjects.remove(alien);
                     break;
                 }
@@ -379,6 +395,8 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
             break;
         }
         case GENERATE_ALIEN_TIMER_ID: {
+            // Calm before the storm
+            //if (score < 1000) break;
             // Create a random number generator engine
             std::random_device rd;
             std::mt19937 gen(rd()); // Mersenne Twister engine
@@ -387,9 +405,23 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
             // Generate a random number
             int randomY = distribution(gen);
             POINT position = { 0, randomY };
-            alienObjects.push_back(std::make_shared<Alien>(position, 5, PI / 2, 1));
+            std::shared_ptr<Alien> newAlien = std::make_shared<Alien>(position, 5, PI / 2, 1, 10 + numAliensGenerated);
+            alienObjects.push_back(newAlien);
+            alienTimers[newAlien->getId()] = newAlien;
+            SetTimer(hWnd, newAlien->getId(), 1000, nullptr);
+            numAliensGenerated++; 
             break;
         }
+        default:
+            // Timer is from an alien and is for shooting bullets;
+            if (alienTimers.find(wParam) == alienTimers.end()) break;
+
+            std::shared_ptr<Alien> alien = alienTimers[wParam];         
+            POINT bulletPosition = alien->getPosition();
+            float alienRotation = alien->getRotation();
+            bulletPosition.x += static_cast<LONG>(sin(alienRotation) * 12);
+            bulletPosition.y -= static_cast<LONG>(cos(alienRotation) * 12);
+            alienBulletObjects.push_back(std::make_shared<Bullet>(bulletPosition, 15, alienRotation + PI / 2, 1));
         }
         break;
     case WM_KEYDOWN:
@@ -475,6 +507,13 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
             }
 
             for (auto& obj : alienObjects) {
+                Gdiplus::GraphicsState graphicsState = graphics.Save();
+                obj->render(graphics);
+                // Restore the original state of the Graphics object
+                graphics.Restore(graphicsState);
+            }
+
+            for (auto& obj : alienBulletObjects) {
                 Gdiplus::GraphicsState graphicsState = graphics.Save();
                 obj->render(graphics);
                 // Restore the original state of the Graphics object

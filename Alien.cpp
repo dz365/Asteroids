@@ -1,7 +1,12 @@
 #include "Alien.h"
 
-Alien::Alien(POINT position, float velocity, float rotation, int health)
-	: GameObject(position, velocity, rotation, health) {}
+Alien::Alien(POINT position, float velocity, float rotation, int health, int id)
+	: GameObject(position, velocity, rotation, health), id(id) {}
+
+int Alien::getId()
+{
+    return id;
+}
 
 RECT Alien::getBoundingRect()
 {
