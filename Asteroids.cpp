@@ -147,7 +147,7 @@ BOOL InitInstance(HINSTANCE hInstance, int nCmdShow)
    UpdateWindow(hWnd);
 
    SetTimer(hWnd, TIMER_ID, 50, nullptr);
-   SetTimer(hWnd, GENERATE_ASTEROID_TIMER_ID, 1500, nullptr);
+   SetTimer(hWnd, GENERATE_ASTEROID_TIMER_ID, 3000, nullptr);
    SetTimer(hWnd, GENERATE_ALIEN_TIMER_ID, 5000, nullptr);
    return TRUE;
 }
@@ -360,6 +360,8 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
             }
 
             for (auto& alien : aliensToRemove) {
+                KillTimer(hWnd, alien->getId());
+                alienTimers.erase(alien->getId());
                 alienObjects.remove(alien);
                 score += 200;
             }
@@ -375,6 +377,26 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
             for (auto& bullet : bulletsToRemove) {
                 bulletObjects.remove(bullet);
                 player->increaseBullets();
+            }
+
+            // Handle alien bullet-player collision
+            bulletsToRemove.clear();
+            for (auto& bullet : alienBulletObjects) {
+                RECT bulletHitbox = bullet->getBoundingRect();
+                // Check player collision
+                if (checkCollision(bulletHitbox, playerHitbox)) {
+                    bullet->handleCollision();
+                    player->handleCollision();
+                    bulletsToRemove.push_back(bullet);
+                    break;
+                }
+                else if (bullet->getDistanceTravelled() > clientWidth) {
+                    // Check bullet distance traveled
+                    bulletsToRemove.push_back(bullet);
+                }
+            }
+            for (auto& bullet : bulletsToRemove) {
+                alienBulletObjects.remove(bullet);
             }
 
             InvalidateRect(hWnd, nullptr, FALSE);
@@ -404,7 +426,7 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 
             // Generate a random number
             int randomY = distribution(gen);
-            POINT position = { 0, randomY };
+            POINT position = { 10, randomY };
             std::shared_ptr<Alien> newAlien = std::make_shared<Alien>(position, 5, PI / 2, 1, 10 + numAliensGenerated);
             alienObjects.push_back(newAlien);
             alienTimers[newAlien->getId()] = newAlien;
