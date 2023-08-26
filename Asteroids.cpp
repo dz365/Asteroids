@@ -274,12 +274,22 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
                     break;
                 }
             }
+            for (auto& alien : alienObjects) {
+                if (checkCollision(playerHitbox, alien->getBoundingRect())) {
+                    player->handleCollision();
+                    alien->handleCollision();
+                    alienObjects.remove(alien);
+                    break;
+                }
+            }
 
             // Handle bullet-object collisions
             std::list<std::shared_ptr<Bullet>> bulletsToRemove;
             std::list<std::shared_ptr<Asteroid>>asteroidsToRemove;
+            std::list<std::shared_ptr<Alien>>aliensToRemove;
             for (auto& bullet : bulletObjects) {
                 RECT bulletHitbox = bullet->getBoundingRect();
+                // Check asteriod collision
                 for (auto& asteroid : asteroidObjects) {
                     if (checkCollision(bulletHitbox, asteroid->getBoundingRect())) {
                         bullet->handleCollision();
@@ -289,12 +299,24 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
                         break;
                     }
                 }
+                // Check alien collision
+                for (auto& alien : alienObjects) {
+                    if (checkCollision(bulletHitbox, alien->getBoundingRect())) {
+                        bullet->handleCollision();
+                        alien->handleCollision();
+                        bulletsToRemove.push_back(bullet);
+                        aliensToRemove.push_back(alien);
+                        break;
+                    }
+                }
+
             }
             for (auto& bullet : bulletsToRemove) {
                 bulletObjects.remove(bullet);
                 player->increaseBullets();
             }
 
+            // Handle asteroid fragmentation upon impact
             for (auto& asteroid : asteroidsToRemove) {
                 asteroidObjects.remove(asteroid);
                 POINT newAsteroidPosition = asteroid->getPosition();
@@ -319,6 +341,11 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
                 else {
                     score += 50;
                 }
+            }
+
+            for (auto& alien : aliensToRemove) {
+                alienObjects.remove(alien);
+                score += 200;
             }
             bulletsToRemove.clear();
 
