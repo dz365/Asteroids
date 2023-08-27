@@ -47,6 +47,7 @@ std::list<std::shared_ptr<Bullet>> alienBulletObjects;
 std::unordered_map<UINT_PTR, std::shared_ptr<Alien>> alienTimers;
 
 int score = 0;
+boolean allowedToFire = true;
 int numAliensGenerated = 0;
 HWND NEWGAME_BUTTON;
 const int BTN_NEWGAME = 1;
@@ -54,6 +55,8 @@ std::unordered_set<std::string> pressedKeys;
 constexpr UINT_PTR TIMER_ID = 1;
 constexpr UINT_PTR GENERATE_ASTEROID_TIMER_ID = 2;
 constexpr UINT_PTR GENERATE_ALIEN_TIMER_ID = 3;
+constexpr UINT_PTR PLAYER_FIRING_SPEED_TIMER_ID = 4;
+constexpr UINT_PTR REFRESH_RATE_TIMER_ID = 5;
 
 int APIENTRY wWinMain(_In_ HINSTANCE hInstance,
                      _In_opt_ HINSTANCE hPrevInstance,
@@ -154,6 +157,8 @@ BOOL InitInstance(HINSTANCE hInstance, int nCmdShow)
    SetTimer(hWnd, TIMER_ID, 50, nullptr);
    SetTimer(hWnd, GENERATE_ASTEROID_TIMER_ID, 2000, nullptr);
    SetTimer(hWnd, GENERATE_ALIEN_TIMER_ID, 10000, nullptr);
+   SetTimer(hWnd, PLAYER_FIRING_SPEED_TIMER_ID, 300, nullptr);
+   SetTimer(hWnd, REFRESH_RATE_TIMER_ID, 10, nullptr);
    return TRUE;
 }
 
@@ -241,14 +246,14 @@ void pressedKeysHandler()
     if (pressedKeys.find("D") != pressedKeys.end())
         player->setRotation(player->getRotation() + PI / 12);
 
-    if (pressedKeys.find("SPACE") != pressedKeys.end() && player->getBulletsAvailable() > 0) {
+    if (allowedToFire &&  pressedKeys.find("SPACE") != pressedKeys.end() && player->getBulletsAvailable() > 0) {
         POINT bulletPosition = player->getPosition();
         float playerRotation = player->getRotation();
         bulletPosition.x += static_cast<LONG>(sin(playerRotation) * 17);
         bulletPosition.y -= static_cast<LONG>(cos(playerRotation) * 17);
         bulletObjects.push_back(std::make_shared<Bullet>(bulletPosition, 15, player->getRotation(), 1));
         player->decreaseBullets();
-        pressedKeys.erase("SPACE");
+        allowedToFire = false;
     }
 }
 
@@ -463,9 +468,7 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
             }
             for (auto& bullet : bulletsToRemove) {
                 alienBulletObjects.remove(bullet);
-            }
-
-            InvalidateRect(hWnd, nullptr, FALSE);
+            }   
             break;
         }
         case GENERATE_ASTEROID_TIMER_ID:
@@ -475,6 +478,11 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
             if (score < 1000) break;    // Calm before the storm
             generateNewAlien(hWnd);
             break;
+        case PLAYER_FIRING_SPEED_TIMER_ID:
+            allowedToFire = true;
+            break;
+        case REFRESH_RATE_TIMER_ID:
+            InvalidateRect(hWnd, nullptr, FALSE);
         default:
             generateAlienBullet(wParam);
         }
@@ -490,6 +498,9 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
         case 'D':
             pressedKeys.insert("D");
             break;
+        case VK_SPACE:
+            pressedKeys.insert("SPACE");
+            break;
         }
         break;
     case WM_KEYUP:
@@ -504,7 +515,7 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
             pressedKeys.erase("D");
             break;
         case VK_SPACE:
-            pressedKeys.insert("SPACE");
+            pressedKeys.erase("SPACE");
             break;
         }
         break;
@@ -512,7 +523,7 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
         {
         if (player->getHealth() <= 0) {
             NEWGAME_BUTTON = CreateWindowEx(
-                0,
+                WS_EX_TRANSPARENT,
                 L"BUTTON",
                 L"New Game",
                 WS_VISIBLE | WS_CHILD,
