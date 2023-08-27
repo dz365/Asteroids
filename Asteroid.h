@@ -2,9 +2,9 @@
 #include "GameObject.h"
 
 enum Size {
-	LARGE = 60,
-	MEDIUM = 45,
-	SMALL = 30
+	SMALL,
+	MEDIUM,
+	LARGE
 };
 
 class Asteroid : public GameObject
@@ -12,7 +12,7 @@ class Asteroid : public GameObject
 private:
 	Size size;
 public:
-	Asteroid(POINT position, float velocity, float rotation, int health, Size size);
+	Asteroid(POINT position, float velocity, float rotation, Size size);
 	Size getSize();
 	RECT getBoundingRect();
 	void render(Gdiplus::Graphics& graphics);

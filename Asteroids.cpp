@@ -33,6 +33,11 @@ BOOL                InitInstance(HINSTANCE, int);
 LRESULT CALLBACK    WndProc(HWND, UINT, WPARAM, LPARAM);
 INT_PTR CALLBACK    About(HWND, UINT, WPARAM, LPARAM);
 
+std::random_device rd; // Create a random number generator engine
+std::mt19937 gen(rd()); // Mersenne Twister engine
+
+static int clientWidth, clientHeight;
+
 // Lists containing gameObjects
 Player* player = new Player();
 std::list<std::shared_ptr<Asteroid>> asteroidObjects;
@@ -147,9 +152,46 @@ BOOL InitInstance(HINSTANCE hInstance, int nCmdShow)
    UpdateWindow(hWnd);
 
    SetTimer(hWnd, TIMER_ID, 50, nullptr);
-   SetTimer(hWnd, GENERATE_ASTEROID_TIMER_ID, 3000, nullptr);
-   SetTimer(hWnd, GENERATE_ALIEN_TIMER_ID, 5000, nullptr);
+   SetTimer(hWnd, GENERATE_ASTEROID_TIMER_ID, 2000, nullptr);
+   SetTimer(hWnd, GENERATE_ALIEN_TIMER_ID, 10000, nullptr);
    return TRUE;
+}
+
+void generateNewAsteroid() {
+    std::uniform_int_distribution<int> distribution(0, clientWidth);
+
+    // Generate a random number
+    int randomX = distribution(gen);
+    int randomY = distribution(gen) % 2 ? 0 : clientHeight;
+    int randomRotation = distribution(gen);
+    int velocity = 5 + distribution(gen) % 5;
+    Size size = static_cast<Size>(distribution(gen) % 3);
+    POINT position = { randomX, randomY };
+    asteroidObjects.push_back(
+        std::make_shared<Asteroid>(position, velocity, randomRotation, size));
+}
+
+void generateNewAlien(HWND hWnd) {
+    std::uniform_int_distribution<int> distribution(0, clientHeight - 10);
+    int randomY = distribution(gen);
+    POINT position = { 0, randomY };
+    std::shared_ptr<Alien> newAlien = 
+        std::make_shared<Alien>(position, 10 + numAliensGenerated);
+    alienObjects.push_back(newAlien);
+    alienTimers[newAlien->getId()] = newAlien;
+    SetTimer(hWnd, newAlien->getId(), 1000, nullptr);
+    numAliensGenerated++;
+}
+
+void generateAlienBullet(int alienId) {
+    // Timer is from an alien and is for shooting bullets;
+    if (alienTimers.find(alienId) == alienTimers.end()) return;
+
+    std::shared_ptr<Alien> alien = alienTimers[alienId];
+    POINT bulletPosition = alien->getPosition();
+    float alienRotation = alien->getRotation();
+    alienBulletObjects.push_back(
+        std::make_shared<Bullet>(bulletPosition, 15, alienRotation + PI / 2, 1));
 }
 
 void pressedKeysHandler()
@@ -216,7 +258,6 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 {
     static HBITMAP hBitmapBuffer = NULL;
     static HDC hdcBuffer = NULL;
-    static int clientWidth, clientHeight;
 
     switch (message)
     {
@@ -337,26 +378,21 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
                 asteroidObjects.remove(asteroid);
                 POINT newAsteroidPosition = asteroid->getPosition();
                 if (asteroid->getSize() != SMALL) {
-                    Size newAsteroidSize = asteroid->getSize() == LARGE ? MEDIUM : SMALL;
-                    score += asteroid->getSize() == LARGE ? 150 : 100;
+                    Size newAsteroidSize = static_cast<Size>(asteroid->getSize() - 1);
                     asteroidObjects.push_back(std::make_shared<Asteroid>(
                         newAsteroidPosition,
                         asteroid->getVelocity(),
                         asteroid->getRotation() - (PI / 2),
-                        1,
                         newAsteroidSize)
                     );
                     asteroidObjects.push_back(std::make_shared<Asteroid>(
                         newAsteroidPosition,
                         asteroid->getVelocity(),
                         asteroid->getRotation() + (PI / 2),
-                        1,
                         newAsteroidSize)
                     );
                 }
-                else {
-                    score += 50;
-                }
+                score += 50 * (1 + static_cast<int>(asteroid->getSize()));
             }
 
             for (auto& alien : aliensToRemove) {
@@ -402,48 +438,15 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
             InvalidateRect(hWnd, nullptr, FALSE);
             break;
         }
-        case GENERATE_ASTEROID_TIMER_ID: {
-            // Create a random number generator engine
-            std::random_device rd;
-            std::mt19937 gen(rd()); // Mersenne Twister engine
-            std::uniform_int_distribution<int> distribution(0, clientWidth);
-
-            // Generate a random number
-            int randomX = distribution(gen);
-            int randomY = distribution(gen) % 2 ? 0 : clientHeight;
-            int randomRotation = distribution(gen);
-            POINT position = { randomX, randomY };
-            asteroidObjects.push_back(std::make_shared<Asteroid>(position, 5, randomRotation, 1, LARGE));
+        case GENERATE_ASTEROID_TIMER_ID:
+            generateNewAsteroid();
             break;
-        }
-        case GENERATE_ALIEN_TIMER_ID: {
-            // Calm before the storm
-            //if (score < 1000) break;
-            // Create a random number generator engine
-            std::random_device rd;
-            std::mt19937 gen(rd()); // Mersenne Twister engine
-            std::uniform_int_distribution<int> distribution(0, clientHeight);
-
-            // Generate a random number
-            int randomY = distribution(gen);
-            POINT position = { 10, randomY };
-            std::shared_ptr<Alien> newAlien = std::make_shared<Alien>(position, 5, PI / 2, 1, 10 + numAliensGenerated);
-            alienObjects.push_back(newAlien);
-            alienTimers[newAlien->getId()] = newAlien;
-            SetTimer(hWnd, newAlien->getId(), 1000, nullptr);
-            numAliensGenerated++; 
+        case GENERATE_ALIEN_TIMER_ID:
+            if (score < 1000) break;    // Calm before the storm
+            generateNewAlien(hWnd);
             break;
-        }
         default:
-            // Timer is from an alien and is for shooting bullets;
-            if (alienTimers.find(wParam) == alienTimers.end()) break;
-
-            std::shared_ptr<Alien> alien = alienTimers[wParam];         
-            POINT bulletPosition = alien->getPosition();
-            float alienRotation = alien->getRotation();
-            bulletPosition.x += static_cast<LONG>(sin(alienRotation) * 12);
-            bulletPosition.y -= static_cast<LONG>(cos(alienRotation) * 12);
-            alienBulletObjects.push_back(std::make_shared<Bullet>(bulletPosition, 15, alienRotation + PI / 2, 1));
+            generateAlienBullet(wParam);
         }
         break;
     case WM_KEYDOWN:

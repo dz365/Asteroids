@@ -1,7 +1,10 @@
 #include "Alien.h"
 
-Alien::Alien(POINT position, float velocity, float rotation, int health, int id)
-	: GameObject(position, velocity, rotation, health), id(id) {}
+constexpr auto PI = 3.14159265358979323846;
+const int ALIEN_VELOCITY = 5;
+
+Alien::Alien(POINT position, int id)
+	: GameObject(position, ALIEN_VELOCITY, PI / 2, 1), id(id) {}
 
 int Alien::getId()
 {

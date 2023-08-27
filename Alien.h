@@ -6,7 +6,7 @@ class Alien : public GameObject
 private:
 	int id;
 public:
-	Alien(POINT position, float velocity, float rotation, int health, int id);
+	Alien(POINT position, int id);
 	int getId();
 	RECT getBoundingRect();
 	void render(Gdiplus::Graphics& graphics);
