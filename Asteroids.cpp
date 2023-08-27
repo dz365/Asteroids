@@ -51,7 +51,7 @@ boolean allowedToFire = true;
 int numAliensGenerated = 0;
 HWND NEWGAME_BUTTON;
 const int BTN_NEWGAME = 1;
-std::unordered_set<std::string> pressedKeys;
+std::unordered_set<WPARAM> pressedKeys;
 constexpr UINT_PTR TIMER_ID = 1;
 constexpr UINT_PTR GENERATE_ASTEROID_TIMER_ID = 2;
 constexpr UINT_PTR GENERATE_ALIEN_TIMER_ID = 3;
@@ -231,22 +231,21 @@ void renderGameObject(Gdiplus::Graphics& graphics, std::shared_ptr<GameObject> o
 
 void pressedKeysHandler()
 {
-    if (pressedKeys.find("W") == pressedKeys.end())
-    {
+    if (pressedKeys.find('W') == pressedKeys.end()) {
         player->stopEngine();
-    } 
-    else
-    {
+    } else {
         player->startEngine();
     }
 
-    if (pressedKeys.find("A") != pressedKeys.end())
+    if (pressedKeys.find('A') != pressedKeys.end())
         player->setRotation(player->getRotation() - PI / 12);
 
-    if (pressedKeys.find("D") != pressedKeys.end())
+    if (pressedKeys.find('D') != pressedKeys.end())
         player->setRotation(player->getRotation() + PI / 12);
 
-    if (allowedToFire &&  pressedKeys.find("SPACE") != pressedKeys.end() && player->getBulletsAvailable() > 0) {
+    if (allowedToFire && 
+        pressedKeys.find(VK_SPACE) != pressedKeys.end() && 
+        player->getBulletsAvailable() > 0) {
         POINT bulletPosition = player->getPosition();
         float playerRotation = player->getRotation();
         bulletPosition.x += static_cast<LONG>(sin(playerRotation) * 17);
@@ -488,36 +487,10 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
         }
         break;
     case WM_KEYDOWN:
-        switch (wParam) {
-        case 'W':
-            pressedKeys.insert("W");
-            break;
-        case 'A':
-            pressedKeys.insert("A");
-            break;
-        case 'D':
-            pressedKeys.insert("D");
-            break;
-        case VK_SPACE:
-            pressedKeys.insert("SPACE");
-            break;
-        }
+        pressedKeys.insert(wParam);
         break;
     case WM_KEYUP:
-        switch (wParam) {
-        case 'W':
-            pressedKeys.erase("W");
-            break;
-        case 'A':
-            pressedKeys.erase("A");
-            break;
-        case 'D':
-            pressedKeys.erase("D");
-            break;
-        case VK_SPACE:
-            pressedKeys.erase("SPACE");
-            break;
-        }
+        pressedKeys.erase(wParam);
         break;
     case WM_PAINT:
         {
