@@ -39,7 +39,7 @@ std::mt19937 gen(rd()); // Mersenne Twister engine
 static int clientWidth, clientHeight;
 
 // Lists containing gameObjects
-Player* player = new Player();
+std::shared_ptr<Player> player = std::make_shared<Player>();
 std::list<std::shared_ptr<Asteroid>> asteroidObjects;
 std::list<std::shared_ptr<Bullet>> bulletObjects;
 std::list<std::shared_ptr<Alien>> alienObjects;
@@ -194,6 +194,36 @@ void generateAlienBullet(int alienId) {
         std::make_shared<Bullet>(bulletPosition, 15, alienRotation + PI / 2, 1));
 }
 
+void renderScore(Gdiplus::Graphics& graphics) {
+    Gdiplus::SolidBrush textBrush(Gdiplus::Color(255, 255, 255));
+    Gdiplus::FontFamily fontFamily(L"Arial");
+    Gdiplus::Font font(&fontFamily, 32, Gdiplus::FontStyleRegular, Gdiplus::UnitPixel);
+    Gdiplus::PointF point(clientWidth / 2 - 16, 10);
+    std::wstring scoreStr = std::to_wstring(score);
+    graphics.DrawString(scoreStr.c_str(), -1, &font, point, &textBrush);
+}
+
+void renderPlayerHealth(Gdiplus::Graphics& graphics) {
+    Gdiplus::Image spaceship(L"spaceship.png"); // 24x24px
+    for (int i = 0; i < player->getHealth(); i++) {
+        graphics.DrawImage(&spaceship, 30 * i + 10, 10);
+    }
+}
+
+void renderPlayerRemainingBullets(Gdiplus::Graphics& graphics) {
+    Gdiplus::Image bullet(L"bullet.png"); // 24x24px
+    for (int i = 0; i < player->getBulletsAvailable(); i++) {
+        graphics.DrawImage(&bullet, 10 * i + 10, 40);
+    }
+}
+
+void renderGameObject(Gdiplus::Graphics& graphics, std::shared_ptr<GameObject> obj) {
+    Gdiplus::GraphicsState graphicsState = graphics.Save();
+    obj->render(graphics);
+    // Restore the original state of the Graphics object
+    graphics.Restore(graphicsState);
+}
+
 void pressedKeysHandler()
 {
     if (pressedKeys.find("W") == pressedKeys.end())
@@ -242,7 +272,7 @@ void createNewGame(HWND hWnd) {
     alienBulletObjects.clear();
     pressedKeys.clear();
     score = 0;
-    player = new Player();
+    player = std::make_shared<Player>();
 }
 //
 //  FUNCTION: WndProc(HWND, UINT, WPARAM, LPARAM)
@@ -497,52 +527,24 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
             HDC hdc = BeginPaint(hWnd, &ps);
             Gdiplus::Graphics graphics(hdcBuffer);
             graphics.Clear(Gdiplus::Color::Black);
-            // Save the current state of the Graphics object
-            
-            Gdiplus::Image spaceship(L"spaceship.png"); // 24x24px
+        
+            renderPlayerHealth(graphics); 
+            renderPlayerRemainingBullets(graphics);
+            renderScore(graphics);    
 
-            for (int i = 0; i < player->getHealth(); i++) {
-                graphics.DrawImage(&spaceship, 30 * i + 10, 10);
-            }
-            
-            Gdiplus::SolidBrush textBrush(Gdiplus::Color(255, 255, 255));
-            Gdiplus::FontFamily fontFamily(L"Arial");
-            Gdiplus::Font font(&fontFamily, 32, Gdiplus::FontStyleRegular, Gdiplus::UnitPixel);
-            Gdiplus::PointF point(clientWidth / 2 - 16, 10);
-            std::wstring scoreStr = std::to_wstring(score);
-            graphics.DrawString(scoreStr.c_str(), -1, &font, point, &textBrush);
-
-            Gdiplus::GraphicsState graphicsState = graphics.Save();
-            player->render(graphics);
-            // Restore the original state of the Graphics object
-            graphics.Restore(graphicsState);
+            renderGameObject(graphics, player);
 
             for (auto& obj : asteroidObjects) {
-                Gdiplus::GraphicsState graphicsState = graphics.Save();
-                obj->render(graphics);
-                // Restore the original state of the Graphics object
-                graphics.Restore(graphicsState);
+                renderGameObject(graphics, obj);
             }
-
             for (auto& obj : bulletObjects) {
-                Gdiplus::GraphicsState graphicsState = graphics.Save();
-                obj->render(graphics);
-                // Restore the original state of the Graphics object
-                graphics.Restore(graphicsState);
+                renderGameObject(graphics, obj);
             }
-
             for (auto& obj : alienObjects) {
-                Gdiplus::GraphicsState graphicsState = graphics.Save();
-                obj->render(graphics);
-                // Restore the original state of the Graphics object
-                graphics.Restore(graphicsState);
+                renderGameObject(graphics, obj);
             }
-
             for (auto& obj : alienBulletObjects) {
-                Gdiplus::GraphicsState graphicsState = graphics.Save();
-                obj->render(graphics);
-                // Restore the original state of the Graphics object
-                graphics.Restore(graphicsState);
+                renderGameObject(graphics, obj);
             }
 
             // Copy the entire buffered content to the window DC
