@@ -38,13 +38,26 @@ std::mt19937 gen(rd()); // Mersenne Twister engine
 
 static int clientWidth, clientHeight;
 
-// Lists containing gameObjects
-std::shared_ptr<Player> player = std::make_shared<Player>();
+// GAMEOBJECTS
+std::shared_ptr<Player> player;
 std::list<std::shared_ptr<Asteroid>> asteroidObjects;
 std::list<std::shared_ptr<Bullet>> bulletObjects;
 std::list<std::shared_ptr<Alien>> alienObjects;
 std::list<std::shared_ptr<Bullet>> alienBulletObjects;
 std::unordered_map<UINT_PTR, std::shared_ptr<Alien>> alienTimers;
+
+// TIMERS
+constexpr UINT_PTR TIMER_ID = 1;
+constexpr UINT_PTR GENERATE_ASTEROID_TIMER_ID = 2;
+constexpr UINT_PTR GENERATE_ALIEN_TIMER_ID = 3;
+constexpr UINT_PTR PLAYER_FIRING_SPEED_TIMER_ID = 4;
+constexpr UINT_PTR REFRESH_RATE_TIMER_ID = 5;
+
+enum GamePanel {
+    START,
+    PLAYING,
+    GAMEOVER
+};
 
 int score = 0;
 boolean allowedToFire = true;
@@ -52,11 +65,9 @@ int numAliensGenerated = 0;
 HWND NEWGAME_BUTTON;
 const int BTN_NEWGAME = 1;
 std::unordered_set<WPARAM> pressedKeys;
-constexpr UINT_PTR TIMER_ID = 1;
-constexpr UINT_PTR GENERATE_ASTEROID_TIMER_ID = 2;
-constexpr UINT_PTR GENERATE_ALIEN_TIMER_ID = 3;
-constexpr UINT_PTR PLAYER_FIRING_SPEED_TIMER_ID = 4;
-constexpr UINT_PTR REFRESH_RATE_TIMER_ID = 5;
+GamePanel panel = START;
+
+void createNewGame(HWND hWnd);
 
 int APIENTRY wWinMain(_In_ HINSTANCE hInstance,
                      _In_opt_ HINSTANCE hPrevInstance,
@@ -154,11 +165,7 @@ BOOL InitInstance(HINSTANCE hInstance, int nCmdShow)
    ShowWindow(hWnd, nCmdShow);
    UpdateWindow(hWnd);
 
-   SetTimer(hWnd, TIMER_ID, 50, nullptr);
-   SetTimer(hWnd, GENERATE_ASTEROID_TIMER_ID, 2000, nullptr);
-   SetTimer(hWnd, GENERATE_ALIEN_TIMER_ID, 10000, nullptr);
-   SetTimer(hWnd, PLAYER_FIRING_SPEED_TIMER_ID, 300, nullptr);
-   SetTimer(hWnd, REFRESH_RATE_TIMER_ID, 10, nullptr);
+   createNewGame(hWnd);
    return TRUE;
 }
 
@@ -264,19 +271,31 @@ bool checkCollision(RECT r1, RECT r2)
 }
 
 void createNewGame(HWND hWnd) {
+    // Reset game objects
     asteroidObjects.clear();
     bulletObjects.clear();
 
-    // Need to stop alien timers first
+    // Stop all alien firing timers.
     for (const auto& pair : alienTimers) {
         KillTimer(hWnd, pair.first);
     }
     alienTimers.clear();
     alienObjects.clear();
     alienBulletObjects.clear();
+
+    player = std::make_shared<Player>();
     pressedKeys.clear();
     score = 0;
-    player = std::make_shared<Player>();
+
+    // Start timers
+    SetTimer(hWnd, TIMER_ID, 50, nullptr);
+    SetTimer(hWnd, GENERATE_ASTEROID_TIMER_ID, 2000, nullptr);
+    SetTimer(hWnd, GENERATE_ALIEN_TIMER_ID, 10000, nullptr);
+    SetTimer(hWnd, PLAYER_FIRING_SPEED_TIMER_ID, 300, nullptr);
+    SetTimer(hWnd, REFRESH_RATE_TIMER_ID, 10, nullptr);
+
+    panel = PLAYING;
+
 }
 //
 //  FUNCTION: WndProc(HWND, UINT, WPARAM, LPARAM)
@@ -335,7 +354,7 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
     case WM_TIMER:
         switch (wParam) {
         case TIMER_ID: {
-            if (player->getHealth() <= 0)
+            if (panel != PLAYING)
                 break;
             pressedKeysHandler();
             player->update(hWnd);
@@ -494,6 +513,7 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
         break;
     case WM_PAINT:
         {
+        if (panel == START) break;
         if (player->getHealth() <= 0) {
             NEWGAME_BUTTON = CreateWindowEx(
                 WS_EX_TRANSPARENT,
