@@ -1,6 +1,6 @@
 #include "Panel.h"
 
-void Panel::setGamePanelContext(GamePanelContext newContext)
+void Panel::setGamePanelContext(GamePanelContext* newContext)
 {
 	context = newContext;
 }

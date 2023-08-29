@@ -5,6 +5,6 @@ class InGamePanel : public Panel
 {
 
 public:
-	void render(HWND hwnd);
+	void render(HWND hwnd) override;
 };
 
