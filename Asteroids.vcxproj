@@ -134,7 +134,7 @@
     <ClInclude Include="framework.h" />
     <ClInclude Include="GameObject.h" />
     <ClInclude Include="GamePanelContext.h" />
-    <ClInclude Include="InGamePanel.h" />
+    <ClInclude Include="PlayingPanel.h" />
     <ClInclude Include="Panel.h" />
     <ClInclude Include="Player.h" />
     <ClInclude Include="Resource.h" />
@@ -147,7 +147,7 @@
     <ClCompile Include="Bullet.cpp" />
     <ClCompile Include="GameObject.cpp" />
     <ClCompile Include="GamePanelContext.cpp" />
-    <ClCompile Include="InGamePanel.cpp" />
+    <ClCompile Include="PlayingPanel.cpp" />
     <ClCompile Include="Panel.cpp" />
     <ClCompile Include="Player.cpp" />
   </ItemGroup>

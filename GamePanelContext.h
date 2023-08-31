@@ -1,5 +1,6 @@
 #pragma once
 #include <windows.h>
+#include <gdiplus.h>
 #include "Panel.h"
 
 class Panel;
@@ -12,6 +13,6 @@ private:
 public:
 	GamePanelContext(Panel* initPanel);
 	void changePanel(Panel* newPanel);
-	void render(HWND hwnd);
+	void render(Gdiplus::Graphics& graphics);
 };
 

@@ -8,9 +8,7 @@ void GamePanelContext::changePanel(Panel* newPanel)
 	panel = newPanel;
 }
 
-void GamePanelContext::render(HWND hwnd)
+void GamePanelContext::render(Gdiplus::Graphics& graphics)
 {
-	panel->render(hwnd);
+	panel->render(graphics);
 }
-
-
