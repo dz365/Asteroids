@@ -1,9 +1,9 @@
 #include "GamePanelContext.h"
 
-GamePanelContext::GamePanelContext(Panel* initPanel) 
+GamePanelContext::GamePanelContext(std::shared_ptr<Panel> initPanel)
 	: panel(initPanel) {}
 
-void GamePanelContext::changePanel(Panel* newPanel)
+void GamePanelContext::changePanel(std::shared_ptr<Panel> newPanel)
 {
 	panel = newPanel;
 }
@@ -11,4 +11,14 @@ void GamePanelContext::changePanel(Panel* newPanel)
 void GamePanelContext::render(Gdiplus::Graphics& graphics)
 {
 	panel->render(graphics);
+}
+
+void GamePanelContext::handleKeyAction(KeyAction action, WPARAM key)
+{
+	panel->handleKeyAction(action, key);
+}
+
+void GamePanelContext::handleTimerAction(UINT_PTR timerId)
+{
+	panel->handleTimerAction(timerId);
 }

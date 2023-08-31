@@ -3,20 +3,11 @@
 
 #include "framework.h"
 #include "Asteroids.h"
-#include "Player.h"
-#include "Asteroid.h"
-#include "Bullet.h"
-#include "Alien.h"
-#include "GameObject.h"
-#include <unordered_set>
-#include <string>
 #include <objidl.h>
 #include <gdiplus.h>
-#include <list>
-#include <unordered_map>
-#include <cmath>
-#include <random>
-
+#include "GamePanelContext.h"
+#include "PlayingPanel.h"
+#include <memory>
 #pragma comment (lib,"Gdiplus.lib")
 
 #define MAX_LOADSTRING 100
@@ -33,19 +24,10 @@ BOOL                InitInstance(HINSTANCE, int);
 LRESULT CALLBACK    WndProc(HWND, UINT, WPARAM, LPARAM);
 INT_PTR CALLBACK    About(HWND, UINT, WPARAM, LPARAM);
 
-enum GamePanel {
-    START,
-    PLAYING,
-    GAMEOVER
-};
-
 
 
 HWND NEWGAME_BUTTON;
 const int BTN_NEWGAME = 1;
-
-GamePanel panel = START;
-
 
 int APIENTRY wWinMain(_In_ HINSTANCE hInstance,
                      _In_opt_ HINSTANCE hPrevInstance,
@@ -184,6 +166,9 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
     static HBITMAP hBitmapBuffer = NULL;
     static HDC hdcBuffer = NULL;
 
+    static std::shared_ptr<PlayingPanel> panel = std::make_shared<PlayingPanel>(hWnd);
+    static std::shared_ptr<GamePanelContext> panelContext = std::make_shared<GamePanelContext>(panel);
+
     switch (message)
     {
     case WM_CREATE:
@@ -222,13 +207,13 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
         }
         break;
     case WM_TIMER:
-        switch (wParam) {
-        }
+        panelContext->handleTimerAction(wParam);
         break;
     case WM_KEYDOWN:
-        
+        panelContext->handleKeyAction(KeyAction::KEYDOWN, wParam);
         break;
     case WM_KEYUP:
+        panelContext->handleKeyAction(KeyAction::KEYUP, wParam);
         break;
     case WM_PAINT:
         {
@@ -253,6 +238,7 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
         HDC hdc = BeginPaint(hWnd, &ps);
         Gdiplus::Graphics graphics(hdcBuffer);
 
+        panelContext->render(graphics);
         // Copy the entire buffered content to the window DC
         BitBlt(hdc, 0, 0, screenWidth, screenHeight, hdcBuffer, 0, 0, SRCCOPY);
         EndPaint(hWnd, &ps);

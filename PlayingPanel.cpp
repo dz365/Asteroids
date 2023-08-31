@@ -34,6 +34,7 @@ PlayingPanel::PlayingPanel(HWND hwnd) :
     SetTimer(hwnd, PLAYER_FIRING_SPEED_TIMER_ID, 300, nullptr);
     SetTimer(hwnd, REFRESH_RATE_TIMER_ID, 10, nullptr);
     SetTimer(hwnd, KEYACTION_TIMER_ID, 50, nullptr);
+    SetTimer(hwnd, UPDATE_GAMEOBJECTS_TIMER_ID, 50, nullptr);
 }
 
 void PlayingPanel::handleKeyAction(KeyAction action, WPARAM key)
@@ -196,8 +197,8 @@ void PlayingPanel::handleOutOfBoundBullets()
 
     for (auto& bullet : bulletObjects) {
         POINT position = bullet->getPosition();
-        if (position.x < 0 || position.x > screenWidth || 
-            position.y < 0 || position.y > screenHeight) {
+        if (position.x <= 0 || position.x > screenWidth - 1 || 
+            position.y <= 0 || position.y > screenHeight - 1) {
             bulletsToRemove.push_back(bullet);
         }
     }
@@ -210,16 +211,16 @@ void PlayingPanel::handleOutOfBoundBullets()
     bulletsToRemove.clear();
     for (auto& bullet : alienBulletObjects) {
         POINT position = bullet->getPosition();
-        if (position.x < 0 || position.x > screenWidth ||
-            position.y < 0 || position.y > screenHeight) {
+        if (position.x <= 0 || position.x > screenWidth - 1 ||
+            position.y <= 0 || position.y > screenHeight - 1) {
             bulletsToRemove.push_back(bullet);
         }
     }
     for (auto& bullet : bulletsToRemove) {
         alienBulletObjects.remove(bullet);
     }
-
 }
+
 void PlayingPanel::render(Gdiplus::Graphics& graphics)
 {
     
@@ -287,6 +288,9 @@ void PlayingPanel::handleTimerAction(UINT_PTR timerId)
         break;
     case KEYACTION_TIMER_ID:
         handlePressedKeys();
+        break;
+    case UPDATE_GAMEOBJECTS_TIMER_ID:
+        update();
         break;
     default:
         generateAlienBullet(timerId); // timer id is the alien id
