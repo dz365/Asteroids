@@ -8,14 +8,6 @@ constexpr auto PI = 3.14159265358979323846;
 std::random_device rd; // Create a random number generator engine
 std::mt19937 gen(rd()); // Mersenne Twister engine
 
-// TIMERS
-constexpr UINT_PTR GENERATE_ASTEROID_TIMER_ID = 1;
-constexpr UINT_PTR GENERATE_ALIEN_TIMER_ID = 2;
-constexpr UINT_PTR PLAYER_FIRING_SPEED_TIMER_ID = 3;
-constexpr UINT_PTR REFRESH_RATE_TIMER_ID = 4;
-constexpr UINT_PTR KEYACTION_TIMER_ID = 5;
-constexpr UINT_PTR UPDATE_GAMEOBJECTS_TIMER_ID = 6;
-
 PlayingPanel::PlayingPanel(HWND hwnd) : 
     Panel(hwnd),
     player(std::make_shared<Player>()),

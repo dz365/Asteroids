@@ -21,6 +21,14 @@ private:
 	std::list<std::shared_ptr<Bullet>> alienBulletObjects;
 	std::unordered_map<UINT_PTR, std::shared_ptr<Alien>> alienTimers;
 
+	// TIMERS
+	static const UINT_PTR GENERATE_ASTEROID_TIMER_ID = 1;
+	static const UINT_PTR GENERATE_ALIEN_TIMER_ID = 2;
+	static const UINT_PTR PLAYER_FIRING_SPEED_TIMER_ID = 3;
+	static const UINT_PTR REFRESH_RATE_TIMER_ID = 4;
+	static const UINT_PTR KEYACTION_TIMER_ID = 5;
+	static const UINT_PTR UPDATE_GAMEOBJECTS_TIMER_ID = 6;
+
 	std::unordered_set<WPARAM> pressedKeys;
 
 	int numAliensGenerated;

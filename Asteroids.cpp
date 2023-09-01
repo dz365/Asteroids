@@ -6,8 +6,8 @@
 #include <objidl.h>
 #include <gdiplus.h>
 #include "GamePanelContext.h"
-#include "PlayingPanel.h"
 #include <memory>
+#include "StartMenuPanel.h"
 #pragma comment (lib,"Gdiplus.lib")
 
 #define MAX_LOADSTRING 100
@@ -171,7 +171,7 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
     case WM_CREATE: {
         // Create the memory DC for double buffering
         hdcBuffer = CreateCompatibleDC(NULL);
-        std::shared_ptr<PlayingPanel> panel = std::make_shared<PlayingPanel>(hWnd);
+        std::shared_ptr<StartMenuPanel> panel = std::make_shared<StartMenuPanel>(hWnd);
         panelContext = std::make_shared<GamePanelContext>(panel);
         panel->setGamePanelContext(panelContext);
         break;

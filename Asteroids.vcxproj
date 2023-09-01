@@ -139,6 +139,7 @@
     <ClInclude Include="Panel.h" />
     <ClInclude Include="Player.h" />
     <ClInclude Include="Resource.h" />
+    <ClInclude Include="StartMenuPanel.h" />
     <ClInclude Include="targetver.h" />
   </ItemGroup>
   <ItemGroup>
@@ -152,6 +153,7 @@
     <ClCompile Include="PlayingPanel.cpp" />
     <ClCompile Include="Panel.cpp" />
     <ClCompile Include="Player.cpp" />
+    <ClCompile Include="StartMenuPanel.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="Asteroids.rc" />
