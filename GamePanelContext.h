@@ -18,5 +18,6 @@ public:
 	void render(Gdiplus::Graphics& graphics);
 	void handleKeyAction(KeyAction action, WPARAM key);
 	void handleTimerAction(UINT_PTR timerId);
+	void handleButtonClickedAction(UINT_PTR buttonId);
 };
 

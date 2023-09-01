@@ -26,8 +26,7 @@ INT_PTR CALLBACK    About(HWND, UINT, WPARAM, LPARAM);
 
 
 
-HWND NEWGAME_BUTTON;
-const int BTN_NEWGAME = 1;
+std::shared_ptr<GamePanelContext> panelContext;
 
 int APIENTRY wWinMain(_In_ HINSTANCE hInstance,
                      _In_opt_ HINSTANCE hPrevInstance,
@@ -166,16 +165,17 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
     static HBITMAP hBitmapBuffer = NULL;
     static HDC hdcBuffer = NULL;
 
-    static std::shared_ptr<PlayingPanel> panel = std::make_shared<PlayingPanel>(hWnd);
-    static std::shared_ptr<GamePanelContext> panelContext = std::make_shared<GamePanelContext>(panel);
 
     switch (message)
     {
-    case WM_CREATE:
+    case WM_CREATE: {
         // Create the memory DC for double buffering
         hdcBuffer = CreateCompatibleDC(NULL);
+        std::shared_ptr<PlayingPanel> panel = std::make_shared<PlayingPanel>(hWnd);
+        panelContext = std::make_shared<GamePanelContext>(panel);
+        panel->setGamePanelContext(panelContext);
         break;
-
+    }
     case WM_SIZE:
         // Recreate the buffer when the window size changes
         if (hdcBuffer) {
@@ -188,13 +188,13 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
     case WM_COMMAND:
         {
             int wmId = LOWORD(wParam);
+            if (HIWORD(wParam) == BN_CLICKED) {
+                panelContext->handleButtonClickedAction(wmId);
+                break;
+            }
             // Parse the menu selections:
             switch (wmId)
             {
-            case BTN_NEWGAME:
-                SetFocus(hWnd);
-                ShowWindow(NEWGAME_BUTTON, SW_HIDE);
-                break;
             case IDM_ABOUT:
                 DialogBox(hInst, MAKEINTRESOURCE(IDD_ABOUTBOX), hWnd, About);
                 break;
@@ -217,19 +217,6 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
         break;
     case WM_PAINT:
         {
-        //if (player->getHealth() <= 0) {
-        //    NEWGAME_BUTTON = CreateWindowEx(
-        //        WS_EX_TRANSPARENT,
-        //        L"BUTTON",
-        //        L"New Game",
-        //        WS_VISIBLE | WS_CHILD,
-        //        10, 10, 100, 30,
-        //        hWnd,
-        //        (HMENU)BTN_NEWGAME,  // Set a unique ID for the button
-        //        GetModuleHandle(NULL),
-        //        NULL
-        //    );
-        //}
         RECT clientRect;
         GetClientRect(hWnd, &clientRect);
         int screenWidth = clientRect.right - clientRect.left;
@@ -237,7 +224,6 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
         PAINTSTRUCT ps;
         HDC hdc = BeginPaint(hWnd, &ps);
         Gdiplus::Graphics graphics(hdcBuffer);
-
         panelContext->render(graphics);
         // Copy the entire buffered content to the window DC
         BitBlt(hdc, 0, 0, screenWidth, screenHeight, hdcBuffer, 0, 0, SRCCOPY);

@@ -51,6 +51,9 @@
     <ClInclude Include="PlayingPanel.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="GameOverPanel.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Asteroids.cpp">
@@ -78,6 +81,9 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="PlayingPanel.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="GameOverPanel.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>

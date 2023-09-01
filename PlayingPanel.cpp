@@ -1,6 +1,7 @@
 #include "PlayingPanel.h"
 #include <random>
 #include <string>
+#include "GameOverPanel.h"
 
 constexpr auto PI = 3.14159265358979323846;
 
@@ -244,6 +245,20 @@ void PlayingPanel::render(Gdiplus::Graphics& graphics)
     for (auto& obj : alienBulletObjects) {
         renderGameObject(graphics, obj);
     }
+
+    if (player->getHealth() <= 0) {
+        gameOver();
+        std::list<std::shared_ptr<GameObject>> gameObjects;
+        gameObjects.push_back(player);
+        gameObjects.insert(gameObjects.end(), asteroidObjects.begin(), asteroidObjects.end());
+        gameObjects.insert(gameObjects.end(), bulletObjects.begin(), bulletObjects.end());
+        gameObjects.insert(gameObjects.end(), alienObjects.begin(), alienObjects.end());
+        gameObjects.insert(gameObjects.end(), alienBulletObjects.begin(), alienBulletObjects.end());
+        std::shared_ptr<GameOverPanel> panel = std::make_shared<GameOverPanel>(hwnd, gameObjects, score);
+        panel->setGamePanelContext(context);
+        context->changePanel(panel);
+        panel->render(graphics);
+    }
 }
 
 void PlayingPanel::update()
@@ -296,8 +311,6 @@ void PlayingPanel::handleTimerAction(UINT_PTR timerId)
         generateAlienBullet(timerId); // timer id is the alien id
     }
 }
-
-
 
 void PlayingPanel::generateAsteroid()
 {
@@ -387,3 +400,18 @@ bool PlayingPanel::hasCollided(RECT r1, RECT r2)
         r1.bottom < r2.top || r2.bottom < r1.top);      // vertical collision
 }
 
+void PlayingPanel::gameOver()
+{
+    for (const auto& pair : alienTimers)
+        KillTimer(hwnd, pair.first);
+    KillTimer(hwnd, GENERATE_ASTEROID_TIMER_ID);
+    KillTimer(hwnd, GENERATE_ALIEN_TIMER_ID );
+    KillTimer(hwnd, PLAYER_FIRING_SPEED_TIMER_ID);
+    KillTimer(hwnd, REFRESH_RATE_TIMER_ID);
+    KillTimer(hwnd, KEYACTION_TIMER_ID);
+    KillTimer(hwnd, UPDATE_GAMEOBJECTS_TIMER_ID);
+}
+
+void PlayingPanel::handleButtonClickedAction(UINT_PTR buttonId)
+{
+}

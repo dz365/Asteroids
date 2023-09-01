@@ -133,6 +133,7 @@
     <ClInclude Include="Bullet.h" />
     <ClInclude Include="framework.h" />
     <ClInclude Include="GameObject.h" />
+    <ClInclude Include="GameOverPanel.h" />
     <ClInclude Include="GamePanelContext.h" />
     <ClInclude Include="PlayingPanel.h" />
     <ClInclude Include="Panel.h" />
@@ -146,6 +147,7 @@
     <ClCompile Include="Asteroids.cpp" />
     <ClCompile Include="Bullet.cpp" />
     <ClCompile Include="GameObject.cpp" />
+    <ClCompile Include="GameOverPanel.cpp" />
     <ClCompile Include="GamePanelContext.cpp" />
     <ClCompile Include="PlayingPanel.cpp" />
     <ClCompile Include="Panel.cpp" />
