@@ -31,7 +31,7 @@ void Bullet::update(const HWND& hWnd)
 
 void Bullet::render(Gdiplus::Graphics& graphics)
 {
-	Gdiplus::Image bullet(L"bullet.png"); // 4x6px
+	Gdiplus::Image bullet(L"Resources\\bullet.png"); // 4x6px
 
 	graphics.TranslateTransform(position.x, position.y);
 	graphics.RotateTransform(rotation * 180 / 3.14159265358979323846);

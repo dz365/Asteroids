@@ -20,7 +20,7 @@ RECT Asteroid::getBoundingRect() {
 
 void Asteroid::render(Gdiplus::Graphics& graphics)
 {
-	Gdiplus::Image asteroid(L"asteroid.png"); // 58x61px
+	Gdiplus::Image asteroid(L"Resources\\asteroid.png"); // 58x61px
 
     int numericSize = 15 * (static_cast<int>(size) + 2);
     graphics.DrawImage(

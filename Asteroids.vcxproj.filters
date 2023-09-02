@@ -98,15 +98,30 @@
       <Filter>Resource Files</Filter>
     </ResourceCompile>
   </ItemGroup>
-  <ItemGroup>
-    <Image Include="small.ico">
-      <Filter>Resource Files</Filter>
-    </Image>
-    <Image Include="Asteroids.ico">
-      <Filter>Resource Files</Filter>
-    </Image>
-    <Image Include="..\..\..\Downloads\spaceship.png">
-      <Filter>Resource Files</Filter>
-    </Image>
-  </ItemGroup>
+	<ItemGroup>
+		<!-- Filters for the images in the Resources folder -->
+		<Image Include="Resources\alien.png">
+			<Filter>Images</Filter>
+		</Image>
+		<Image Include="Resources\asteroid.png">
+			<Filter>Images</Filter>
+		</Image>
+		<Image Include="Resources\bullet.png">
+			<Filter>Images</Filter>
+		</Image>
+		<Image Include="Resources\spaceship.png">
+			<Filter>Images</Filter>
+		</Image>
+		<Image Include="Resources\thrust.png">
+			<Filter>Images</Filter>
+		</Image>
+
+		<!-- Filters for the icon files -->
+		<Image Include="Asteroids.ico">
+			<Filter>Icons</Filter>
+		</Image>
+		<Image Include="small.ico">
+			<Filter>Icons</Filter>
+		</Image>
+	</ItemGroup>
 </Project>

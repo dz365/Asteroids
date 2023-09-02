@@ -365,14 +365,14 @@ void PlayingPanel::renderScore(Gdiplus::Graphics& graphics) {
 }
 
 void PlayingPanel::renderPlayerHealth(Gdiplus::Graphics& graphics) {
-    Gdiplus::Image spaceship(L"spaceship.png"); // 24x24px
+    Gdiplus::Image spaceship(L"Resources\\spaceship.png"); // 24x24px
     for (int i = 0; i < player->getHealth(); i++) {
         graphics.DrawImage(&spaceship, 30 * i + 10, 10);
     }
 }
 
 void PlayingPanel::renderPlayerRemainingBullets(Gdiplus::Graphics& graphics) {
-    Gdiplus::Image bullet(L"bullet.png"); // 24x24px
+    Gdiplus::Image bullet(L"Resources\\bullet.png"); // 24x24px
     for (int i = 0; i < player->getBulletsAvailable(); i++) {
         graphics.DrawImage(&bullet, 10 * i + 10, 40);
     }

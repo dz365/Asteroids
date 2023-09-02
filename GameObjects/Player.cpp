@@ -55,7 +55,7 @@ void Player::update(const HWND& hWnd)
 
 void Player::render(Gdiplus::Graphics& graphics)
 {
-    Gdiplus::Image spaceship(L"spaceship.png"); // 24x24px
+    Gdiplus::Image spaceship(L"Resources\\spaceship.png"); // 24x24px
 
     graphics.TranslateTransform(position.x, position.y);
     graphics.RotateTransform(rotation * 180 / 3.14159265358979323846);
@@ -68,7 +68,7 @@ void Player::render(Gdiplus::Graphics& graphics)
     );
 
 	if (engineOn) {
-        Gdiplus::Image thrust(L"thrust.png");
+        Gdiplus::Image thrust(L"Resources\\thrust.png");
         graphics.DrawImage(
             &thrust, 
             static_cast<int>(position.x - 9), 

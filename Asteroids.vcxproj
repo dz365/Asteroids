@@ -159,9 +159,13 @@
     <ResourceCompile Include="Asteroids.rc" />
   </ItemGroup>
   <ItemGroup>
-    <Image Include="..\..\..\Downloads\spaceship.png" />
-    <Image Include="Asteroids.ico" />
-    <Image Include="small.ico" />
+	  <Image Include="Resources\alien.png" />
+	  <Image Include="Resources\asteroid.png" />
+	  <Image Include="Resources\bullet.png" />
+	  <Image Include="Resources\spaceship.png" />
+	  <Image Include="Resources\thrust.png" />
+	  <Image Include="Asteroids.ico" />
+	  <Image Include="small.ico" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

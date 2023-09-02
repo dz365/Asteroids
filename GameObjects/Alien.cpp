@@ -23,7 +23,7 @@ RECT Alien::getBoundingRect()
 
 void Alien::render(Gdiplus::Graphics& graphics)
 {
-    Gdiplus::Image alien(L"alien.png"); // 28x17px
+    Gdiplus::Image alien(L"Resources\\alien.png"); // 28x17px
 
     graphics.TranslateTransform(position.x, position.y);
     graphics.RotateTransform(rotation * 180 / 3.14159265358979323846);
