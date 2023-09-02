@@ -129,7 +129,7 @@
   <ItemGroup>
     <ClInclude Include="GameObjects\Alien.h" />
     <ClInclude Include="GameObjects\Asteroid.h" />
-    <ClInclude Include="Asteroids.h" />
+    <ClInclude Include="AsteroidGame.h" />
     <ClInclude Include="GameObjects\Bullet.h" />
     <ClInclude Include="framework.h" />
     <ClInclude Include="GameObjects\GameObject.h" />
@@ -145,7 +145,7 @@
   <ItemGroup>
     <ClCompile Include="GameObjects\Alien.cpp" />
     <ClCompile Include="GameObjects\Asteroid.cpp" />
-    <ClCompile Include="Asteroids.cpp" />
+    <ClCompile Include="AsteroidGame.cpp" />
     <ClCompile Include="GameObjects\Bullet.cpp" />
     <ClCompile Include="GameObjects\GameObject.cpp" />
     <ClCompile Include="Panels\GameOverPanel.cpp" />
@@ -159,13 +159,13 @@
     <ResourceCompile Include="Asteroids.rc" />
   </ItemGroup>
   <ItemGroup>
-	  <Image Include="Resources\alien.png" />
-	  <Image Include="Resources\asteroid.png" />
-	  <Image Include="Resources\bullet.png" />
-	  <Image Include="Resources\spaceship.png" />
-	  <Image Include="Resources\thrust.png" />
-	  <Image Include="Asteroids.ico" />
-	  <Image Include="small.ico" />
+    <Image Include="Resources\alien.png" />
+    <Image Include="Resources\asteroid.png" />
+    <Image Include="Resources\bullet.png" />
+    <Image Include="Resources\spaceship.png" />
+    <Image Include="Resources\thrust.png" />
+    <Image Include="Asteroids.ico" />
+    <Image Include="small.ico" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

@@ -2,7 +2,7 @@
 //
 
 #include "framework.h"
-#include "Asteroids.h"
+#include "AsteroidGame.h"
 #include <objidl.h>
 #include <gdiplus.h>
 #include "./Panels/GamePanelContext.h"
