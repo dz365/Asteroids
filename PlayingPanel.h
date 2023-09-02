@@ -5,7 +5,7 @@
 #include "Player.h"
 #include "Asteroid.h"
 #include "Bullet.h"
-#include "Alien.h"
+#include "./GameObjects/Alien.h"
 #include <list>
 #include <unordered_map>
 #include <unordered_set>

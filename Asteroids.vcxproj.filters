@@ -39,9 +39,6 @@
     <ClInclude Include="Bullet.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="Alien.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="GamePanelContext.h">
       <Filter>Header Files</Filter>
     </ClInclude>
@@ -55,6 +52,9 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="StartMenuPanel.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Alien.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
