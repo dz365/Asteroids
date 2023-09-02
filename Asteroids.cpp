@@ -5,9 +5,9 @@
 #include "Asteroids.h"
 #include <objidl.h>
 #include <gdiplus.h>
-#include "GamePanelContext.h"
+#include "./Panels/GamePanelContext.h"
 #include <memory>
-#include "StartMenuPanel.h"
+#include "./Panels/StartMenuPanel.h"
 #pragma comment (lib,"Gdiplus.lib")
 
 #define MAX_LOADSTRING 100

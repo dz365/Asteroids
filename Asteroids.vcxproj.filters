@@ -39,19 +39,19 @@
     <ClInclude Include="GameObjects\Bullet.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="GamePanelContext.h">
+    <ClInclude Include="Panels\GamePanelContext.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="Panel.h">
+    <ClInclude Include="Panels\Panel.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="PlayingPanel.h">
+    <ClInclude Include="Panels\PlayingPanel.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="GameOverPanel.h">
+    <ClInclude Include="Panels\GameOverPanel.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="StartMenuPanel.h">
+    <ClInclude Include="Panels\StartMenuPanel.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="GameObjects\Alien.h">
@@ -77,19 +77,19 @@
     <ClCompile Include="GameObjects\Alien.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="GamePanelContext.cpp">
+    <ClCompile Include="Panels\GamePanelContext.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="Panel.cpp">
+    <ClCompile Include="Panels\Panel.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="PlayingPanel.cpp">
+    <ClCompile Include="Panels\PlayingPanel.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="GameOverPanel.cpp">
+    <ClCompile Include="Panels\GameOverPanel.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="StartMenuPanel.cpp">
+    <ClCompile Include="Panels\StartMenuPanel.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
