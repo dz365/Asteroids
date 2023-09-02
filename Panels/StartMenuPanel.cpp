@@ -41,7 +41,7 @@ StartMenuPanel::StartMenuPanel(HWND hwnd) :
         asteroidObjects.push_back(
             std::make_shared<Asteroid>(position, velocity, randomRotation, size));
     }
-    SetTimer(hwnd, RENDER_ID, 10, nullptr);
+    SetTimer(hwnd, RENDER_ID, 50, nullptr);
     SetTimer(hwnd, UPDATE_ASTEROIDS_TIMER_ID, 50, nullptr);
 }
 
