@@ -127,32 +127,32 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClInclude Include="Alien.h" />
-    <ClInclude Include="Asteroid.h" />
+    <ClInclude Include="GameObjects\Alien.h" />
+    <ClInclude Include="GameObjects\Asteroid.h" />
     <ClInclude Include="Asteroids.h" />
-    <ClInclude Include="Bullet.h" />
+    <ClInclude Include="GameObjects\Bullet.h" />
     <ClInclude Include="framework.h" />
-    <ClInclude Include="GameObject.h" />
+    <ClInclude Include="GameObjects\GameObject.h" />
     <ClInclude Include="GameOverPanel.h" />
     <ClInclude Include="GamePanelContext.h" />
     <ClInclude Include="PlayingPanel.h" />
     <ClInclude Include="Panel.h" />
-    <ClInclude Include="Player.h" />
+    <ClInclude Include="GameObjects\Player.h" />
     <ClInclude Include="Resource.h" />
     <ClInclude Include="StartMenuPanel.h" />
     <ClInclude Include="targetver.h" />
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="Alien.cpp" />
-    <ClCompile Include="Asteroid.cpp" />
+    <ClCompile Include="GameObjects\Alien.cpp" />
+    <ClCompile Include="GameObjects\Asteroid.cpp" />
     <ClCompile Include="Asteroids.cpp" />
-    <ClCompile Include="Bullet.cpp" />
-    <ClCompile Include="GameObject.cpp" />
+    <ClCompile Include="GameObjects\Bullet.cpp" />
+    <ClCompile Include="GameObjects\GameObject.cpp" />
     <ClCompile Include="GameOverPanel.cpp" />
     <ClCompile Include="GamePanelContext.cpp" />
     <ClCompile Include="PlayingPanel.cpp" />
     <ClCompile Include="Panel.cpp" />
-    <ClCompile Include="Player.cpp" />
+    <ClCompile Include="GameObjects\Player.cpp" />
     <ClCompile Include="StartMenuPanel.cpp" />
   </ItemGroup>
   <ItemGroup>

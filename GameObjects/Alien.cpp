@@ -1,4 +1,4 @@
-#include "./GameObjects/Alien.h"
+#include "Alien.h"
 
 constexpr auto PI = 3.14159265358979323846;
 const int ALIEN_VELOCITY = 5;

@@ -1,10 +1,10 @@
 #pragma once
 #include "Panel.h"
 #include <memory>
-#include "GameObject.h"
-#include "Player.h"
-#include "Asteroid.h"
-#include "Bullet.h"
+#include "./GameObjects/GameObject.h"
+#include "./GameObjects/Player.h"
+#include "./GameObjects/Asteroid.h"
+#include "./GameObjects/Bullet.h"
 #include "./GameObjects/Alien.h"
 #include <list>
 #include <unordered_map>

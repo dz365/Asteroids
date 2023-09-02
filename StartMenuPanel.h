@@ -1,7 +1,7 @@
 #pragma once
 #include "Panel.h"
 #include <list>
-#include "GameObject.h"
+#include "./GameObjects/GameObject.h"
 class StartMenuPanel : public Panel
 {
 private:
