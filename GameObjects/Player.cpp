@@ -1,10 +1,10 @@
 #include "Player.h"
 
-Player::Player() : GameObject({ 250, 250 }, 0, 0, 3) 
-{
-    engineOn = false;
-    bulletsAvailable = 5;
-}
+Player::Player() : 
+    GameObject({ 250, 250 }, 0, 0, 3), 
+    engineOn(false), 
+    bulletsAvailable(5),
+    heading(0){}
 
 void Player::startEngine() {
 	engineOn = true;
@@ -41,16 +41,33 @@ RECT Player::getBoundingRect() {
 void Player::update(const HWND& hWnd)
 {
     // Determine new velocity
-    if (engineOn)
-        velocity += 2.0f;
-    else
-        velocity -= 0.5f;
-    if (velocity < 0)
-        velocity = 0;
-    if (velocity > 12)
-        velocity = 12.0f;
+    if (engineOn) {
+        if (abs(heading - rotation) > 3.14 / 2)
+            velocity *= 0.1;
+        heading = rotation;
+        velocity = min(12.0f, velocity + 0.25);
+    }
+    else {
+        velocity = max(0, velocity - 0.1f);
+    }
 
-    GameObject::update(hWnd);
+    // Update position
+    position.x += static_cast<LONG>(sin(heading) * velocity);
+    position.y -= static_cast<LONG>(cos(heading) * velocity);
+
+    RECT rect;
+    GetClientRect(hWnd, &rect);
+    int windowWidth = rect.right - rect.left;
+    int windowHeight = rect.bottom - rect.top;
+
+    if (position.x < 0)
+        position.x = windowWidth;
+    if (position.x > windowWidth)
+        position.x = 0;
+    if (position.y < 0)
+        position.y = windowHeight;
+    if (position.y > windowHeight)
+        position.y = 0;
 }
 
 void Player::render(Gdiplus::Graphics& graphics)

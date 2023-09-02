@@ -7,6 +7,8 @@ class Player : public GameObject
 private:
 	bool engineOn;
 	int bulletsAvailable;
+	float heading;				// Direction the player is moving
+
 
 public:
 	Player();
